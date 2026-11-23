@@ -1,0 +1,4058 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Queen Sazón — Sistema Integral de Nómina y Caja v3</title>
+  <style>
+    /* =========================================================================
+       VARIABLES DE DISEÑO Y PALETA EJECUTIVA (100% CSS PURO / OFFLINE)
+       ========================================================================= */
+    :root {
+      --primary-dark: #1F3A3D;
+      --primary: #325D63;
+      --primary-light: #447A82;
+      --bg: #F4F7F7;
+      --surface: #FFFFFF;
+      --surface-alt: #F9FBFB;
+      --cream: #FFFBF0;
+      --cream-border: #E5D5AE;
+      --mint-bg: #E0EFE8;
+      --mint-text: #14532D;
+      --amber-bg: #FEF6E4;
+      --amber-text: #8A5A00;
+      --red-bg: #FDECEC;
+      --red-text: #9B1C1C;
+      --border: #D9E2E3;
+      --border-strong: #BFCFD1;
+      --text: #1A2B2E;
+      --muted: #5A7073;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(31, 58, 61, 0.08);
+      --shadow-md: 0 4px 14px rgba(31, 58, 61, 0.09);
+      --sidebar-w: 256px;
+      --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      font-family: var(--font);
+      background-color: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.45;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* =========================================================================
+       ESTRUCTURA PRINCIPAL (SIDEBAR DESKTOP + TABS MÓVIL)
+       ========================================================================= */
+    .app-shell {
+      display: flex;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    /* Barra Lateral Escritorio */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: linear-gradient(180deg, var(--primary-dark) 0%, #162B2E 100%);
+      color: #FFFFFF;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 40;
+      box-shadow: 2px 0 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .brand {
+      padding: 22px 20px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--primary-light);
+      font-size: 16px;
+      font-weight: 800;
+      color: #FFFBF0;
+      flex-shrink: 0;
+    }
+
+    .brand-sub {
+      font-size: 11.5px;
+      color: rgba(255, 255, 255, 0.72);
+      margin-top: 4px;
+      padding-left: 44px;
+    }
+
+    .nav-list {
+      list-style: none;
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .nav-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: rgba(255, 255, 255, 0.82);
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.18s ease, color 0.18s ease, transform 0.1s ease;
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #FFFFFF;
+    }
+
+    .nav-btn.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .nav-btn svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      opacity: 0.9;
+    }
+
+    .sidebar-footer {
+      padding: 14px 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 11.5px;
+      color: rgba(255, 255, 255, 0.65);
+      line-height: 1.5;
+    }
+
+    .sidebar-footer strong {
+      color: #FFFFFF;
+      display: block;
+    }
+
+    /* Contenido Principal */
+    .main-area {
+      flex: 1;
+      margin-left: var(--sidebar-w);
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Topbar */
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .mobile-brand {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      font-size: 16px;
+    }
+
+    .page-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--primary-dark);
+    }
+
+    .period-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--primary-dark);
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .save-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--mint-text);
+      background: var(--mint-bg);
+      padding: 5px 11px;
+      border-radius: 999px;
+      opacity: 0.92;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .save-indicator.pulse {
+      transform: scale(1.04);
+      opacity: 1;
+    }
+
+    .save-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #16A34A;
+    }
+
+    /* Navegación Móvil */
+    .mobile-nav {
+      display: none;
+      background: var(--primary-dark);
+      padding: 8px 10px;
+      gap: 6px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      position: sticky;
+      top: 56px;
+      z-index: 29;
+    }
+
+    .mobile-nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .mobile-tab {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 13px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.85);
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .mobile-tab.active {
+      background: #FFFFFF;
+      color: var(--primary-dark);
+      font-weight: 700;
+    }
+
+    /* Contenedor de Vistas */
+    .content {
+      padding: 22px 24px 40px;
+      max-width: 1480px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .view-section {
+      display: none;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* =========================================================================
+       TARJETAS, KPIs Y GRILLAS
+       ========================================================================= */
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .grid-main-side {
+      display: grid;
+      grid-template-columns: minmax(0, 1.85fr) minmax(300px, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+
+    .card-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      background: var(--surface-alt);
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .card-body {
+      padding: 18px;
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--primary);
+    }
+
+    .kpi-card.kpi-mint::before { background: var(--mint-text); }
+    .kpi-card.kpi-amber::before { background: var(--amber-text); }
+    .kpi-card.kpi-red::before { background: var(--red-text); }
+    .kpi-card.kpi-dark::before { background: var(--primary-dark); }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .kpi-value {
+      font-size: 23px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-top: 6px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .kpi-card.kpi-mint .kpi-value { color: var(--mint-text); }
+    .kpi-card.kpi-amber .kpi-value { color: var(--amber-text); }
+    .kpi-card.kpi-red .kpi-value { color: var(--red-text); }
+
+    .kpi-meta {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* =========================================================================
+       SUB-PESTAÑAS, BOTONES, FORMULARIOS E INPUTS CREMA
+       ========================================================================= */
+    .subtabs {
+      display: inline-flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 4px;
+      border-radius: var(--radius-sm);
+      gap: 4px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .subtab-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      padding: 9px 16px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .subtab-btn:hover {
+      color: var(--primary-dark);
+      background: var(--bg);
+    }
+
+    .subtab-btn.active {
+      background: var(--primary-dark);
+      color: #FFFFFF;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 9px 15px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      min-height: 38px;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--primary-dark);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--primary-dark);
+      border-color: var(--border-strong);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg);
+    }
+
+    .btn-mint {
+      background: var(--mint-bg);
+      color: var(--mint-text);
+      border-color: #B7DAC9;
+    }
+
+    .btn-mint:hover {
+      background: #CFE7DC;
+    }
+
+    .btn-danger {
+      background: var(--red-bg);
+      color: var(--red-text);
+      border-color: #F5C2C2;
+    }
+
+    .btn-danger:hover {
+      background: #FAD5D5;
+    }
+
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 12px;
+      min-height: 30px;
+    }
+
+    .btn-icon {
+      padding: 6px 8px;
+      min-height: 30px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+      gap: 12px;
+      align-items: end;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .field label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary-dark);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select {
+      width: 100%;
+      padding: 8px 11px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 13.5px;
+      color: var(--text);
+      background: var(--surface);
+      min-height: 38px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input.editable,
+    select.editable {
+      background: var(--cream);
+      border-color: var(--cream-border);
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(50, 93, 99, 0.16);
+    }
+
+    /* Inputs compactos dentro de tablas */
+    .tbl-input {
+      width: 68px;
+      min-height: 32px;
+      padding: 5px 6px !important;
+      text-align: right;
+      font-size: 13px !important;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      background: var(--cream) !important;
+      border: 1px solid var(--cream-border) !important;
+      border-radius: 6px !important;
+    }
+
+    .tbl-input-lg {
+      width: 112px;
+    }
+
+    /* =========================================================================
+       TABLAS RESPONSIVAS Y BADGES
+       ========================================================================= */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      background: var(--primary-dark);
+      color: #FFFFFF;
+      font-weight: 600;
+      text-align: left;
+      padding: 10px 10px;
+      white-space: nowrap;
+      font-size: 12px;
+      letter-spacing: 0.2px;
+    }
+
+    th.num, td.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    th.center, td.center {
+      text-align: center;
+    }
+
+    td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    tbody tr:hover {
+      background: #F6FAFA;
+    }
+
+    tfoot td {
+      background: #EBF1F2;
+      font-weight: 800;
+      color: var(--primary-dark);
+      border-top: 2px solid var(--primary);
+      padding: 11px 10px;
+    }
+
+    /* Columna fija a la izquierda en tablas anchas */
+    .sticky-col {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: var(--surface);
+      box-shadow: 2px 0 5px rgba(31, 58, 61, 0.06);
+    }
+
+    thead th.sticky-col {
+      background: var(--primary-dark);
+      z-index: 3;
+    }
+
+    tfoot td.sticky-col {
+      background: #EBF1F2;
+      z-index: 3;
+    }
+
+    tbody tr:hover td.sticky-col {
+      background: #F6FAFA;
+    }
+
+    .emp-name {
+      font-weight: 700;
+      color: var(--primary-dark);
+      display: block;
+    }
+
+    .emp-role {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge-mint { background: var(--mint-bg); color: var(--mint-text); }
+    .badge-amber { background: var(--amber-bg); color: var(--amber-text); }
+    .badge-red { background: var(--red-bg); color: var(--red-text); }
+    .badge-neutral { background: #E9EFEF; color: #4A6063; }
+    .badge-teal { background: #E1EFF1; color: var(--primary-dark); }
+
+    .text-mint { color: var(--mint-text); font-weight: 700; }
+    .text-amber { color: var(--amber-text); font-weight: 700; }
+    .text-red { color: var(--red-text); font-weight: 700; }
+    .text-muted { color: var(--muted); }
+
+    .cell-highlight-mint { background: var(--mint-bg); color: var(--mint-text); font-weight: 800; }
+    .cell-highlight-amber { background: var(--amber-bg); color: var(--amber-text); font-weight: 700; }
+    .cell-highlight-red { background: var(--red-bg); color: var(--red-text); font-weight: 700; }
+
+    /* =========================================================================
+       GRÁFICOS SVG NATIVOS
+       ========================================================================= */
+    .chart-box {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .chart-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      font-family: var(--font);
+    }
+
+    /* =========================================================================
+       SALUD FINANCIERA (FLUJO DE CAJA)
+       ========================================================================= */
+    .health-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .health-item {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 11px 13px;
+    }
+
+    .health-item.hl-mint { background: var(--mint-bg); border-color: #B7DAC9; }
+    .health-item.hl-amber { background: var(--amber-bg); border-color: #EED49B; }
+    .health-item.hl-red { background: var(--red-bg); border-color: #F3C2C2; }
+
+    .health-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .health-val {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-top: 3px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .hl-mint .health-val { color: var(--mint-text); }
+    .hl-amber .health-val { color: var(--amber-text); }
+    .hl-red .health-val { color: var(--red-text); }
+
+    /* =========================================================================
+       COMPROBANTE DE PAGO IMPRIMIBLE
+       ========================================================================= */
+    .receipt-controls {
+      display: flex;
+      align-items: flex-end;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      background: var(--surface);
+      padding: 16px 18px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+    }
+
+    .receipt-sheet {
+      background: #FFFFFF;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 28px 32px;
+      box-shadow: var(--shadow-md);
+      color: #111827;
+    }
+
+    .receipt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid var(--primary-dark);
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+      gap: 12px;
+    }
+
+    .receipt-brand h2 {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      letter-spacing: 0.4px;
+    }
+
+    .receipt-brand p {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .receipt-meta {
+      text-align: right;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .receipt-meta strong {
+      display: block;
+      font-size: 13.5px;
+      color: var(--primary-dark);
+    }
+
+    .receipt-worker-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px 18px;
+      background: var(--bg);
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      margin-bottom: 18px;
+      font-size: 13px;
+    }
+
+    .receipt-worker-grid div span {
+      color: var(--muted);
+      font-size: 11.5px;
+      display: block;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .receipt-worker-grid div strong {
+      color: var(--primary-dark);
+      font-size: 13.5px;
+    }
+
+    .receipt-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 16px;
+    }
+
+    .receipt-table th {
+      background: #EBF1F2;
+      color: var(--primary-dark);
+      border-top: 1px solid var(--border-strong);
+      border-bottom: 1px solid var(--border-strong);
+      padding: 8px 10px;
+    }
+
+    .receipt-table td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #E5ECEC;
+      white-space: normal;
+    }
+
+    .receipt-summary {
+      width: 100%;
+      max-width: 380px;
+      margin-left: auto;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+
+    .receipt-sum-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .receipt-sum-row:last-child {
+      border-bottom: none;
+    }
+
+    .receipt-sum-row.net-pay {
+      background: var(--mint-bg);
+      color: var(--mint-text);
+      font-size: 16px;
+      font-weight: 800;
+      padding: 11px 14px;
+    }
+
+    .receipt-sum-row.carry-row {
+      background: var(--amber-bg);
+      color: var(--amber-text);
+      font-weight: 700;
+    }
+
+    .receipt-deductions-note {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      margin-bottom: 22px;
+      font-size: 12px;
+    }
+
+    .receipt-deductions-note h4 {
+      font-size: 12px;
+      color: var(--red-text);
+      margin-bottom: 5px;
+    }
+
+    .receipt-deductions-note ul {
+      padding-left: 16px;
+      color: var(--text);
+    }
+
+    .receipt-signatures {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-top: 42px;
+      padding-top: 10px;
+    }
+
+    .sig-box {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .sig-line {
+      border-top: 1px solid #4B5563;
+      margin-bottom: 6px;
+    }
+
+    .sig-box strong {
+      color: #111827;
+      display: block;
+      font-size: 12.5px;
+    }
+
+    /* =========================================================================
+       MODALES Y TOASTS (SIN alert() NI confirm())
+       ========================================================================= */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(18, 33, 36, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 100;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      animation: fadeIn 0.16s ease;
+    }
+
+    .modal-head {
+      padding: 15px 18px;
+      background: var(--primary-dark);
+      color: #FFFFFF;
+      font-weight: 700;
+      font-size: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: #FFFFFF;
+      font-size: 20px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 2px 6px;
+    }
+
+    .modal-body {
+      padding: 18px;
+    }
+
+    .modal-foot {
+      padding: 12px 18px;
+      background: var(--surface-alt);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 120;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-width: 340px;
+    }
+
+    .toast {
+      background: var(--primary-dark);
+      color: #FFFFFF;
+      padding: 11px 16px;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .toast.toast-success { background: #14532D; }
+    .toast.toast-error { background: #9B1C1C; }
+    .toast.toast-amber { background: #8A5A00; }
+
+    /* =========================================================================
+       UTILIDADES VARIAS
+       ========================================================================= */
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-bar select, .filter-bar input {
+      width: auto;
+      min-width: 150px;
+    }
+
+    .info-banner {
+      background: #EAF3F4;
+      border-left: 4px solid var(--primary);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      color: var(--primary-dark);
+      margin-bottom: 16px;
+    }
+
+    .driver-pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .driver-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border-strong);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--primary-dark);
+    }
+
+    .driver-chip button {
+      border: none;
+      background: var(--red-bg);
+      color: var(--red-text);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-weight: 700;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 28px 14px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* =========================================================================
+       RESPONSIVE BREAKPOINTS (TABLET Y CELULAR)
+       ========================================================================= */
+    @media (max-width: 1120px) {
+      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-2 { grid-template-columns: 1fr; }
+      .grid-main-side { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main-area { margin-left: 0; }
+      .mobile-brand { display: flex; }
+      .page-title { display: none; }
+      .mobile-nav { display: flex; }
+      .topbar { padding: 10px 14px; }
+      .content { padding: 14px 12px 32px; }
+      .receipt-sheet { padding: 18px 16px; }
+      .receipt-worker-grid { grid-template-columns: 1fr; }
+      .receipt-signatures { gap: 20px; }
+    }
+
+    @media (max-width: 540px) {
+      .grid-4 { grid-template-columns: 1fr; }
+      .grid-3 { grid-template-columns: 1fr; }
+      .kpi-value { font-size: 20px; }
+      .save-indicator span.save-text { display: none; }
+      .receipt-header { flex-direction: column; }
+      .receipt-meta { text-align: left; }
+    }
+
+    /* =========================================================================
+       IMPRESIÓN / PDF LIMPIO EN ESCALA DE GRISES Y BAJO CONSUMO DE TINTA
+       ========================================================================= */
+    @media print {
+      @page {
+        size: portrait;
+        margin: 12mm;
+      }
+
+      body {
+        background: #FFFFFF !important;
+        color: #000000 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .sidebar,
+      .topbar,
+      .mobile-nav,
+      .receipt-controls,
+      .modal-backdrop,
+      .toast-container,
+      .no-print {
+        display: none !important;
+      }
+
+      .main-area {
+        margin-left: 0 !important;
+      }
+
+      .content {
+        padding: 0 !important;
+        max-width: 100% !important;
+      }
+
+      .view-section {
+        display: none !important;
+      }
+
+      #view-comprobante {
+        display: block !important;
+      }
+
+      .receipt-sheet {
+        box-shadow: none !important;
+        border: 1.5px solid #222222 !important;
+        border-radius: 0 !important;
+        max-width: 100% !important;
+        padding: 16px 20px !important;
+        margin: 0 !important;
+        filter: grayscale(100%);
+      }
+
+      .receipt-header {
+        border-bottom: 2px solid #000000 !important;
+      }
+
+      .receipt-worker-grid,
+      .receipt-table th,
+      .receipt-sum-row.net-pay,
+      .receipt-sum-row.carry-row,
+      .receipt-deductions-note {
+        background: #F4F4F4 !important;
+        color: #000000 !important;
+        border-color: #666666 !important;
+      }
+
+      .receipt-brand h2,
+      .receipt-meta strong,
+      .receipt-worker-grid div strong {
+        color: #000000 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- ==================== BARRA LATERAL ESCRITORIO ==================== -->
+    <aside class="sidebar" aria-label="Navegación principal">
+      <div class="brand">
+        <div class="brand-title">
+          <span class="brand-badge">QS</span>
+          <span>Queen Sazón</span>
+        </div>
+        <div class="brand-sub">Sistema Nómina y Caja v3</div>
+      </div>
+
+      <ul class="nav-list" id="desktop-nav">
+        <li>
+          <button class="nav-btn active" data-view="dashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+            <span>Dashboard y Caja</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-btn" data-view="nomina">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Nómina (Q1 / Q2 / Mes)</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-btn" data-view="descuentos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span>Descuentos y Vales</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-btn" data-view="domicilios">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6h3l3 5h-4l-2-5zM5.5 17.5L9 9h5l1.5 4.5M9 9H6"/></svg>
+            <span>Control Domicilios</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-btn" data-view="comprobante">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            <span>Comprobante de Pago</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-btn" data-view="config">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Configuración y Respaldos</span>
+          </button>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <strong>100% Autónoma (Offline)</strong>
+        Datos guardados localmente en este dispositivo. Exporta respaldos periódicamente.
+      </div>
+    </aside>
+
+    <!-- ==================== ÁREA PRINCIPAL ==================== -->
+    <div class="main-area">
+      <!-- Barra Superior -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="mobile-brand">
+            <span class="brand-badge" style="width:28px;height:28px;font-size:13px;">QS</span>
+            <span>Queen Sazón</span>
+          </div>
+          <h1 class="page-title" id="topbar-title">Dashboard y Flujo de Caja</h1>
+          <span class="period-pill" id="topbar-period">Noviembre 2026</span>
+        </div>
+        <div class="topbar-right">
+          <div class="save-indicator" id="save-indicator" title="Los cambios se guardan automáticamente en este navegador">
+            <span class="save-dot"></span>
+            <span class="save-text" id="save-status-text">Guardado automáticamente</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Navegación Móvil Compacta -->
+      <nav class="mobile-nav" id="mobile-nav" aria-label="Menú móvil">
+        <button class="mobile-tab active" data-view="dashboard">Dashboard y Caja</button>
+        <button class="mobile-tab" data-view="nomina">Nómina</button>
+        <button class="mobile-tab" data-view="descuentos">Descuentos</button>
+        <button class="mobile-tab" data-view="domicilios">Domicilios</button>
+        <button class="mobile-tab" data-view="comprobante">Comprobante</button>
+        <button class="mobile-tab" data-view="config">Configuración</button>
+      </nav>
+
+      <main class="content">
+        <!-- =================================================================
+             MÓDULO 1: DASHBOARD Y FLUJO DE CAJA
+             ================================================================= -->
+        <section id="view-dashboard" class="view-section active">
+          <!-- 4 KPIs Superiores -->
+          <div class="grid-4" id="dash-kpis"></div>
+
+          <!-- 2 Gráficos SVG Puros -->
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Efectivo Pagado en Nómina por Empleado</div>
+                  <div class="card-subtitle">Acumulado mensual real (Quincena 1 + Quincena 2)</div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="chart-box" id="chart-payroll"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Pagos Acumulados por Domiciliario</div>
+                  <div class="card-subtitle">Distribución del gasto de entregas en el periodo activo</div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="chart-box" id="chart-deliveries"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Flujo de Caja Diario -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Flujo de Caja Diario — Ventas vs. Nómina, Domicilios e Insumos</div>
+                <div class="card-subtitle">Los domicilios se importan día a día y la nómina se carga automáticamente el día 15 y el último día del mes.</div>
+              </div>
+              <div class="field" style="flex-direction:row;align-items:center;gap:8px;">
+                <label for="cf-saldo-inicial" style="white-space:nowrap;">Saldo Inicial Caja:</label>
+                <input type="number" id="cf-saldo-inicial" class="editable tbl-input-lg" style="text-align:right;font-weight:700;" step="1000">
+              </div>
+            </div>
+            <div class="card-body">
+              <!-- Tarjetas de Salud Financiera -->
+              <div class="health-grid" id="cf-health"></div>
+
+              <!-- Tabla Diaria -->
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th class="sticky-col">Día / Fecha</th>
+                      <th class="num">Ventas Efectivo</th>
+                      <th class="num">Ventas Transf./Punto</th>
+                      <th class="num">Total Ventas</th>
+                      <th class="num">Insumos / Otros</th>
+                      <th class="num">Domicilios (Auto)</th>
+                      <th class="num">Pago Nómina (Auto)</th>
+                      <th class="num">Flujo Neto Día</th>
+                      <th class="num">Saldo Acumulado</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cf-tbody"></tbody>
+                  <tfoot id="cf-tfoot"></tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =================================================================
+             MÓDULO 2: NÓMINA (Q1 / Q2 / CONSOLIDADO MENSUAL)
+             ================================================================= -->
+        <section id="view-nomina" class="view-section">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:10px;">
+            <div class="subtabs" id="payroll-subtabs">
+              <button class="subtab-btn active" data-subtab="q1">Quincena 1 (1 al 15)</button>
+              <button class="subtab-btn" data-subtab="q2">Quincena 2 (16 al Fin de Mes)</button>
+              <button class="subtab-btn" data-subtab="mensual">Consolidado Mensual</button>
+            </div>
+            <span class="badge badge-teal" id="payroll-date-range"></span>
+          </div>
+
+          <!-- KPIs rápidos de la sub-pestaña de nómina -->
+          <div class="grid-4" id="payroll-kpis"></div>
+
+          <!-- Contenedor dinámico de tablas Q1 / Q2 / Consolidado -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title" id="payroll-table-title">Nómina Quincena 1</div>
+                <div class="card-subtitle" id="payroll-table-sub">Edita las cantidades en crema. Las tarifas, descuentos y arrastres se calculan al instante.</div>
+              </div>
+            </div>
+            <div class="table-wrap" id="payroll-table-container"></div>
+          </div>
+
+          <!-- Desglose por Cargo (visible en Consolidado Mensual) -->
+          <div class="card" id="payroll-role-card" style="display:none;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Resumen Consolidado por Cargo</div>
+                <div class="card-subtitle">Distribución mensual de nómina según rol operativo</div>
+              </div>
+            </div>
+            <div class="table-wrap" id="payroll-role-container"></div>
+          </div>
+        </section>
+
+        <!-- =================================================================
+             MÓDULO 3: DESCUENTOS Y VALES
+             ================================================================= -->
+        <section id="view-descuentos" class="view-section">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Registrar Nuevo Descuento / Vale / Adelanto</div>
+                <div class="card-subtitle">Se asigna automáticamente a Quincena 1 (días 1–15) o Quincena 2 (días 16–fin de mes).</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <form id="form-deduction" class="form-grid">
+                <div class="field">
+                  <label for="ded-date">Fecha</label>
+                  <input type="date" id="ded-date" class="editable" required>
+                </div>
+                <div class="field">
+                  <label for="ded-emp">Empleado</label>
+                  <select id="ded-emp" class="editable" required></select>
+                </div>
+                <div class="field">
+                  <label for="ded-reason">Motivo</label>
+                  <select id="ded-reason" class="editable" required>
+                    <option value="Adelanto Salario">Adelanto Salario</option>
+                    <option value="Consumo / Comida">Consumo / Comida</option>
+                    <option value="Préstamo">Préstamo</option>
+                    <option value="Faltante Caja">Faltante Caja</option>
+                    <option value="Descuento General">Descuento General</option>
+                    <option value="Otro">Otro</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="ded-amount">Monto ($)</label>
+                  <input type="number" id="ded-amount" class="editable" min="0" step="100" placeholder="Ej: 15000" required>
+                </div>
+                <div class="field">
+                  <label for="ded-note">Observación</label>
+                  <input type="text" id="ded-note" class="editable" placeholder="Detalle opcional">
+                </div>
+                <div class="field">
+                  <button type="submit" class="btn btn-primary" style="width:100%;">+ Agregar Descuento</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="grid-main-side">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Bitácora de Descuentos</div>
+                <div class="filter-bar">
+                  <select id="ded-filter-emp"><option value="">Todos los empleados</option></select>
+                  <select id="ded-filter-q">
+                    <option value="">Todas las quincenas</option>
+                    <option value="Q1">Quincena 1</option>
+                    <option value="Q2">Quincena 2</option>
+                    <option value="OUT">Otro periodo</option>
+                  </select>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Quincena</th>
+                      <th>Empleado</th>
+                      <th>Motivo</th>
+                      <th class="num">Monto</th>
+                      <th>Observación</th>
+                      <th class="center">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ded-tbody"></tbody>
+                  <tfoot id="ded-tfoot"></tfoot>
+                </table>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Resumen por Empleado</div>
+                  <div class="card-subtitle">Solo periodo activo</div>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Empleado</th>
+                      <th class="num">Desc. Q1</th>
+                      <th class="num">Desc. Q2</th>
+                      <th class="num">Total Mes</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ded-summary-tbody"></tbody>
+                  <tfoot id="ded-summary-tfoot"></tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =================================================================
+             MÓDULO 4: CONTROL DOMICILIOS
+             ================================================================= -->
+        <section id="view-domicilios" class="view-section">
+          <div class="grid-3" id="del-kpis"></div>
+
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Registrar Pago de Domicilios</div>
+                <div class="card-subtitle">Se refleja automáticamente en el resumen por domiciliario y en el Flujo de Caja del día.</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <form id="form-delivery" class="form-grid">
+                <div class="field">
+                  <label for="del-date">Fecha</label>
+                  <input type="date" id="del-date" class="editable" required>
+                </div>
+                <div class="field">
+                  <label for="del-driver">Domiciliario / Plataforma</label>
+                  <select id="del-driver" class="editable" required></select>
+                </div>
+                <div class="field">
+                  <label for="del-amount">Monto ($)</label>
+                  <input type="number" id="del-amount" class="editable" min="0" step="500" placeholder="Ej: 35000" required>
+                </div>
+                <div class="field">
+                  <label for="del-note">Observación</label>
+                  <input type="text" id="del-note" class="editable" placeholder="Detalle opcional">
+                </div>
+                <div class="field">
+                  <button type="submit" class="btn btn-primary" style="width:100%;">+ Registrar Pago</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="grid-main-side">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Historial de Pagos a Domicilios</div>
+                <div class="filter-bar">
+                  <select id="del-filter-driver"><option value="">Todos los domiciliarios</option></select>
+                  <select id="del-filter-q">
+                    <option value="">Todas las quincenas</option>
+                    <option value="Q1">Quincena 1</option>
+                    <option value="Q2">Quincena 2</option>
+                    <option value="OUT">Otro periodo</option>
+                  </select>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Quincena</th>
+                      <th>Domiciliario</th>
+                      <th class="num">Monto</th>
+                      <th>Observación</th>
+                      <th class="center">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody id="del-tbody"></tbody>
+                  <tfoot id="del-tfoot"></tfoot>
+                </table>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Resumen por Domiciliario</div>
+                  <div class="card-subtitle">Periodo activo (días pagados &gt; $0 y participación)</div>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Domiciliario</th>
+                      <th class="center">Días</th>
+                      <th class="num">Total</th>
+                      <th class="num">%</th>
+                    </tr>
+                  </thead>
+                  <tbody id="del-summary-tbody"></tbody>
+                  <tfoot id="del-summary-tfoot"></tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =================================================================
+             MÓDULO 5: COMPROBANTE DE PAGO (IMPRIMIBLE / PDF)
+             ================================================================= -->
+        <section id="view-comprobante" class="view-section">
+          <div class="receipt-controls no-print">
+            <div class="field" style="min-width:210px;flex:1;">
+              <label for="rec-emp">Seleccionar Empleado</label>
+              <select id="rec-emp" class="editable"></select>
+            </div>
+            <div class="field" style="min-width:200px;flex:1;">
+              <label for="rec-period">Seleccionar Periodo</label>
+              <select id="rec-period" class="editable">
+                <option value="Q1">Quincena 1 (1 al 15)</option>
+                <option value="Q2">Quincena 2 (16 al Fin de Mes)</option>
+                <option value="MENSUAL">Consolidado Mensual</option>
+              </select>
+            </div>
+            <button type="button" class="btn btn-primary" id="btn-print-receipt">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              Imprimir / Guardar PDF
+            </button>
+          </div>
+
+          <article class="receipt-sheet" id="receipt-sheet"></article>
+        </section>
+
+        <!-- =================================================================
+             MÓDULO 6: CONFIGURACIÓN Y RESPALDOS
+             ================================================================= -->
+        <section id="view-config" class="view-section">
+          <div class="grid-2">
+            <!-- Periodo Activo -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Periodo de Nómina y Fechas Automáticas</div>
+                  <div class="card-subtitle">Al cambiar Año o Mes se recalculan Q1, Q2 y los días exactos del Flujo de Caja (28/29/30/31).</div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="form-grid">
+                  <div class="field">
+                    <label for="cfg-year">Año</label>
+                    <input type="number" id="cfg-year" class="editable" min="2020" max="2040">
+                  </div>
+                  <div class="field">
+                    <label for="cfg-month">Mes</label>
+                    <select id="cfg-month" class="editable">
+                      <option value="1">1 — Enero</option>
+                      <option value="2">2 — Febrero</option>
+                      <option value="3">3 — Marzo</option>
+                      <option value="4">4 — Abril</option>
+                      <option value="5">5 — Mayo</option>
+                      <option value="6">6 — Junio</option>
+                      <option value="7">7 — Julio</option>
+                      <option value="8">8 — Agosto</option>
+                      <option value="9">9 — Septiembre</option>
+                      <option value="10">10 — Octubre</option>
+                      <option value="11">11 — Noviembre</option>
+                      <option value="12">12 — Diciembre</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="info-banner" id="cfg-dates-preview" style="margin-top:14px;margin-bottom:0;"></div>
+              </div>
+            </div>
+
+            <!-- Centro de Respaldos y Exportación -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Centro de Respaldos y Exportación (100% Offline)</div>
+                  <div class="card-subtitle">Guarda copias de seguridad, transfiere datos a otro equipo o exporta a Excel.</div>
+                </div>
+              </div>
+              <div class="card-body" style="display:flex;flex-wrap:wrap;gap:10px;">
+                <button type="button" class="btn btn-primary" id="btn-export-json">Exportar Respaldo JSON</button>
+                <label class="btn btn-secondary" style="cursor:pointer;">
+                  Importar Respaldo JSON
+                  <input type="file" id="input-import-json" accept=".json" style="display:none;">
+                </label>
+                <button type="button" class="btn btn-mint" id="btn-export-xls">Exportar Reporte Excel (.xls)</button>
+                <button type="button" class="btn btn-danger" id="btn-reset-demo">Restaurar Datos de Noviembre 2026</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel de Tarifas Centralizadas -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Panel de Tarifas Centralizadas</div>
+                <div class="card-subtitle">Cualquier cambio aquí recalcula automáticamente toda la nómina, el flujo de caja y los comprobantes.</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-grid" id="cfg-rates-grid"></div>
+            </div>
+          </div>
+
+          <!-- Gestión de Empleados -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Directorio Maestro de Empleados</div>
+                <div class="card-subtitle">Sin límite de registros. El cargo "Auxiliar" aplica automáticamente la tarifa de Domingo Auxiliar.</div>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm" id="btn-add-emp">+ Nuevo Empleado</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Cargo</th>
+                    <th>Modalidad</th>
+                    <th class="num">Sueldo Fijo Quincenal</th>
+                    <th class="center">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="cfg-emp-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Gestión de Domiciliarios -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Directorio de Domiciliarios y Plataformas</div>
+                <div class="card-subtitle">Agrega o retira repartidores disponibles en las listas desplegables.</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <form id="form-add-driver" style="display:flex;gap:10px;flex-wrap:wrap;max-width:460px;">
+                <input type="text" id="cfg-new-driver" class="editable" placeholder="Nombre del repartidor o app (ej: RAPPI)" style="flex:1;" required>
+                <button type="submit" class="btn btn-primary">+ Agregar</button>
+              </form>
+              <div class="driver-pill-list" id="cfg-drivers-list"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL DE CONFIRMACIÓN PERSONALIZADO ==================== -->
+  <div class="modal-backdrop" id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="modal-card">
+      <div class="modal-head">
+        <span id="confirm-title">Confirmar acción</span>
+        <button type="button" class="modal-close" id="confirm-close" aria-label="Cerrar">&times;</button>
+      </div>
+      <div class="modal-body" id="confirm-message"></div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-secondary" id="confirm-cancel">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="confirm-ok">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL CREAR / EDITAR EMPLEADO ==================== -->
+  <div class="modal-backdrop" id="emp-modal" role="dialog" aria-modal="true" aria-labelledby="emp-modal-title">
+    <div class="modal-card">
+      <div class="modal-head">
+        <span id="emp-modal-title">Empleado</span>
+        <button type="button" class="modal-close" id="emp-modal-close" aria-label="Cerrar">&times;</button>
+      </div>
+      <form id="form-emp-modal">
+        <div class="modal-body" style="display:flex;flex-direction:column;gap:12px;">
+          <input type="hidden" id="emp-edit-id">
+          <div class="field">
+            <label for="emp-edit-name">Nombre completo</label>
+            <input type="text" id="emp-edit-name" class="editable" required placeholder="Ej: Carolina">
+          </div>
+          <div class="field">
+            <label for="emp-edit-role">Cargo</label>
+            <select id="emp-edit-role" class="editable" required>
+              <option value="Cocinera">Cocinera</option>
+              <option value="Cocinero">Cocinero</option>
+              <option value="Jefa de Cocina">Jefa de Cocina</option>
+              <option value="Cajera">Cajera</option>
+              <option value="Auxiliar">Auxiliar</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="emp-edit-mod">Modalidad de Pago</label>
+            <select id="emp-edit-mod" class="editable" required>
+              <option value="Pago Diario">Pago Diario</option>
+              <option value="Sueldo Fijo">Sueldo Fijo</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="emp-edit-fixed">Sueldo Fijo Quincenal ($)</label>
+            <input type="number" id="emp-edit-fixed" class="editable" min="0" step="1000" value="0">
+            <span style="font-size:11.5px;color:var(--muted);">Se suma automáticamente en cada quincena (0 si cobra solo por días trabajados).</span>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn btn-secondary" id="emp-modal-cancel">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Empleado</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Contenedor de Notificaciones Toast -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <script>
+    /* =========================================================================
+       QUEEN SAZÓN — SISTEMA INTEGRAL DE NÓMINA Y CAJA v3
+       Motor JavaScript 100% puro, autónomo y persistente en localStorage
+       ========================================================================= */
+    (function () {
+      'use strict';
+
+      const STORAGE_KEY = 'queen_sazon_v3_state';
+      const MONTHS_ES = [
+        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+      ];
+      const VIEW_TITLES = {
+        dashboard: 'Dashboard y Flujo de Caja',
+        nomina: 'Nómina (Q1, Q2 y Consolidado)',
+        descuentos: 'Descuentos y Vales',
+        domicilios: 'Control Domicilios',
+        comprobante: 'Comprobante de Pago (Imprimible)',
+        config: 'Configuración y Respaldos'
+      };
+
+      const RATE_DEFINITIONS = [
+        { key: 'daily', label: 'Salario Diario' },
+        { key: 'sunday_std', label: 'Domingo / Festivo Estándar' },
+        { key: 'sunday_aux', label: 'Domingo / Festivo Auxiliar' },
+        { key: 'snack', label: 'Valor Merienda' },
+        { key: 'early', label: 'Valor Madrugada' },
+        { key: 'rest', label: 'Valor Descanso' },
+        { key: 'extra_shift', label: 'Valor Turno Adicional' },
+        { key: 'overtime_hr', label: 'Valor Hora Extra' }
+      ];
+
+      /* =======================================================================
+         1. DATOS INICIALES CONCILIADOS (NOVIEMBRE 2026 — VERSIÓN v3)
+         ======================================================================= */
+      function emptyQuincena() {
+        return { days: 0, sundays: 0, snacks: 0, early: 0, rest: 0, extraShift: 0, overtime: 0 };
+      }
+
+      function getInitialState() {
+        return {
+          version: 3,
+          period: { year: 2026, month: 11 },
+          rates: {
+            daily: 60000,
+            sunday_std: 30000,
+            sunday_aux: 20000,
+            snack: 40000,
+            early: 30000,
+            rest: 30000,
+            extra_shift: 60000,
+            overtime_hr: 10000
+          },
+          employees: [
+            { id: 'emp_1', name: 'Mariangel', role: 'Cocinera', modality: 'Pago Diario', sueldoFijo: 0,
+              q1: { days: 14, sundays: 4, snacks: 8, early: 0, rest: 2, extraShift: 2, overtime: 0 }, q2: emptyQuincena() },
+            { id: 'emp_2', name: 'Erick', role: 'Cocinero', modality: 'Pago Diario', sueldoFijo: 0,
+              q1: { days: 14, sundays: 3, snacks: 7, early: 0, rest: 2, extraShift: 2, overtime: 0 }, q2: emptyQuincena() },
+            { id: 'emp_3', name: 'Kelly', role: 'Cocinera', modality: 'Pago Diario', sueldoFijo: 0,
+              q1: { days: 13, sundays: 3, snacks: 7, early: 0, rest: 2, extraShift: 2, overtime: 0 }, q2: emptyQuincena() },
+            { id: 'emp_4', name: 'Yajaira', role: 'Cocinera', modality: 'Pago Diario', sueldoFijo: 0,
+              q1: { days: 14, sundays: 4, snacks: 9, early: 1, rest: 2, extraShift: 2, overtime: 0 }, q2: emptyQuincena() },
+            { id: 'emp_5', name: 'Yohana', role: 'Jefa de Cocina', modality: 'Sueldo Fijo', sueldoFijo: 0,
+              q1: emptyQuincena(), q2: emptyQuincena() },
+            { id: 'emp_6', name: 'Nelly', role: 'Jefa de Cocina', modality: 'Sueldo Fijo', sueldoFijo: 0,
+              q1: emptyQuincena(), q2: emptyQuincena() },
+            { id: 'emp_7', name: 'Yessika', role: 'Cajera', modality: 'Sueldo Fijo', sueldoFijo: 0,
+              q1: emptyQuincena(), q2: emptyQuincena() },
+            { id: 'emp_8', name: 'Thairid', role: 'Auxiliar', modality: 'Pago Diario', sueldoFijo: 0,
+              q1: { days: 11, sundays: 3, snacks: 6, early: 0, rest: 0, extraShift: 2, overtime: 0 }, q2: emptyQuincena() },
+            { id: 'emp_9', name: 'Tiffany', role: 'Cocinera', modality: 'Pago Diario', sueldoFijo: 0,
+              q1: { days: 11, sundays: 3, snacks: 0, early: 0, rest: 3, extraShift: 0, overtime: 0 }, q2: emptyQuincena() },
+            { id: 'emp_10', name: 'Alexander', role: 'Cocinero', modality: 'Pago Diario', sueldoFijo: 0,
+              q1: emptyQuincena(), q2: emptyQuincena() },
+            { id: 'emp_11', name: 'Rubi', role: 'Auxiliar', modality: 'Pago Diario', sueldoFijo: 0,
+              q1: { days: 2, sundays: 0, snacks: 0, early: 0, rest: 0, extraShift: 0, overtime: 0 }, q2: emptyQuincena() },
+            { id: 'emp_12', name: 'Joserlin', role: 'Auxiliar', modality: 'Pago Diario', sueldoFijo: 0,
+              q1: { days: 8, sundays: 0, snacks: 0, early: 0, rest: 0, extraShift: 0, overtime: 0 }, q2: emptyQuincena() }
+          ],
+          deductions: [
+            { id: 'ded_1', date: '2026-11-15', empId: 'emp_1', reason: 'Descuento General', amount: 3000, note: 'Registrado en captura Q1' },
+            { id: 'ded_2', date: '2026-11-15', empId: 'emp_6', reason: 'Descuento General', amount: 3000, note: 'Sin días en Q1 — arrastra a Q2' },
+            { id: 'ded_3', date: '2026-11-15', empId: 'emp_7', reason: 'Descuento General', amount: 6200, note: 'Sin días en Q1 — arrastra a Q2' },
+            { id: 'ded_4', date: '2026-11-15', empId: 'emp_9', reason: 'Descuento General', amount: 18000, note: 'Registrado en captura Q1' }
+          ],
+          drivers: ['JEREMIAS', 'NIRVANA', 'JIM', 'CARLOS', 'PARTICULAR', 'JOHANA VOPAK', 'YANGO'],
+          deliveries: [
+            { id: 'del_1',  date: '2026-11-06', driver: 'YANGO',        amount: 10000, note: '' },
+            { id: 'del_2',  date: '2026-11-06', driver: 'JOHANA VOPAK', amount: 16000, note: '' },
+            { id: 'del_3',  date: '2026-11-06', driver: 'NIRVANA',      amount: 33000, note: '' },
+            { id: 'del_4',  date: '2026-11-06', driver: 'JEREMIAS',     amount: 39000, note: '' },
+            { id: 'del_5',  date: '2026-11-06', driver: 'CARLOS',       amount: 28000, note: '' },
+            { id: 'del_6',  date: '2026-11-07', driver: 'JEREMIAS',     amount: 12000, note: '' },
+            { id: 'del_7',  date: '2026-11-09', driver: 'JEREMIAS',     amount: 0,     note: 'Sin monto en captura' },
+            { id: 'del_8',  date: '2026-11-09', driver: 'NIRVANA',      amount: 0,     note: 'Sin monto en captura' },
+            { id: 'del_9',  date: '2026-11-09', driver: 'JIM',          amount: 0,     note: 'Sin monto en captura' },
+            { id: 'del_10', date: '2026-11-09', driver: 'PARTICULAR',   amount: 0,     note: 'Sin monto en captura' },
+            { id: 'del_11', date: '2026-11-10', driver: 'JEREMIAS',     amount: 37000, note: '' },
+            { id: 'del_12', date: '2026-11-10', driver: 'NIRVANA',      amount: 27000, note: '' },
+            { id: 'del_13', date: '2026-11-10', driver: 'JIM',          amount: 36000, note: '' },
+            { id: 'del_14', date: '2026-11-10', driver: 'PARTICULAR',   amount: 10000, note: '' },
+            { id: 'del_15', date: '2026-11-11', driver: 'PARTICULAR',   amount: 0,     note: 'Sin monto en captura' },
+            { id: 'del_16', date: '2026-11-11', driver: 'NIRVANA',      amount: 36000, note: '' },
+            { id: 'del_17', date: '2026-11-11', driver: 'JEREMIAS',     amount: 36000, note: '' },
+            { id: 'del_18', date: '2026-11-11', driver: 'JIM',          amount: 60000, note: '' },
+            { id: 'del_19', date: '2026-11-12', driver: 'JEREMIAS',     amount: 40000, note: '' },
+            { id: 'del_20', date: '2026-11-12', driver: 'JIM',          amount: 30000, note: '' },
+            { id: 'del_21', date: '2026-11-12', driver: 'CARLOS',       amount: 24000, note: '' },
+            { id: 'del_22', date: '2026-11-12', driver: 'NIRVANA',      amount: 41000, note: '' },
+            { id: 'del_23', date: '2026-11-12', driver: 'PARTICULAR',   amount: 8000,  note: '' }
+          ],
+          cashFlow: {
+            saldoInicial: 0,
+            days: {} // clave "YYYY-MM-DD": { ventasEfectivo, ventasTransf, insumos }
+          }
+        };
+      }
+
+      /* =======================================================================
+         2. ESTADO GLOBAL Y PERSISTENCIA EN LOCALSTORAGE
+         ======================================================================= */
+      let state = loadState();
+      let activeView = 'dashboard';
+      let activePayrollSubtab = 'q1';
+      let saveTimeout = null;
+      let pendingConfirmCallback = null;
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return getInitialState();
+          const parsed = JSON.parse(raw);
+          if (!parsed || !parsed.period || !parsed.rates || !Array.isArray(parsed.employees)) {
+            return getInitialState();
+          }
+          if (!parsed.cashFlow) parsed.cashFlow = { saldoInicial: 0, days: {} };
+          if (!parsed.cashFlow.days) parsed.cashFlow.days = {};
+          if (!Array.isArray(parsed.deductions)) parsed.deductions = [];
+          if (!Array.isArray(parsed.deliveries)) parsed.deliveries = [];
+          if (!Array.isArray(parsed.drivers)) parsed.drivers = [];
+          return parsed;
+        } catch (err) {
+          console.error('Error leyendo localStorage:', err);
+          return getInitialState();
+        }
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          pulseSaveIndicator();
+        } catch (err) {
+          showToast('No se pudo guardar en el navegador (espacio lleno o modo privado).', 'error');
+        }
+      }
+
+      function pulseSaveIndicator() {
+        const ind = document.getElementById('save-indicator');
+        const txt = document.getElementById('save-status-text');
+        if (!ind) return;
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mm = String(now.getMinutes()).padStart(2, '0');
+        txt.textContent = 'Guardado ' + hh + ':' + mm;
+        ind.classList.add('pulse');
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => ind.classList.remove('pulse'), 500);
+      }
+
+      /* =======================================================================
+         3. UTILIDADES DE FORMATO, FECHAS Y ESCAPE SEGURO
+         ======================================================================= */
+      function fmtNum(val) {
+        const n = Number(val) || 0;
+        return Math.round(n).toLocaleString('es-CO');
+      }
+
+      function fmtMoney(val) {
+        const n = Math.round(Number(val) || 0);
+        return (n < 0 ? '-$' : '$') + Math.abs(n).toLocaleString('es-CO');
+      }
+
+      function fmtPct(val) {
+        if (!isFinite(val) || isNaN(val)) return '0,0%';
+        return (val * 100).toFixed(1).replace('.', ',') + '%';
+      }
+
+      function escHtml(str) {
+        return String(str == null ? '' : str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function escXml(str) {
+        return escHtml(str);
+      }
+
+      function pad2(n) {
+        return String(n).padStart(2, '0');
+      }
+
+      function getDaysInMonth(year, month) {
+        // month es 1..12; el día 0 del mes siguiente da el último día real (maneja bisiestos)
+        return new Date(year, month, 0).getDate();
+      }
+
+      function getPeriodInfo(year, month) {
+        const lastDay = getDaysInMonth(year, month);
+        const mm = pad2(month);
+        const monthName = MONTHS_ES[month - 1] || 'Mes';
+        return {
+          year,
+          month,
+          lastDay,
+          monthName,
+          label: `${monthName} ${year}`,
+          q1Start: `01/${mm}/${year}`,
+          q1End: `15/${mm}/${year}`,
+          q2Start: `16/${mm}/${year}`,
+          q2End: `${pad2(lastDay)}/${mm}/${year}`,
+          monthStart: `01/${mm}/${year}`,
+          monthEnd: `${pad2(lastDay)}/${mm}/${year}`,
+          defaultDate: `${year}-${mm}-15`
+        };
+      }
+
+      function parseYMD(dateStr) {
+        if (!dateStr || typeof dateStr !== 'string') return null;
+        const parts = dateStr.split('-');
+        if (parts.length !== 3) return null;
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10);
+        const d = parseInt(parts[2], 10);
+        if (!y || !m || !d) return null;
+        return { year: y, month: m, day: d };
+      }
+
+      function formatYMDtoDMY(dateStr) {
+        const p = parseYMD(dateStr);
+        if (!p) return dateStr || '';
+        return `${pad2(p.day)}/${pad2(p.month)}/${p.year}`;
+      }
+
+      function classifyDate(dateStr, activeYear, activeMonth) {
+        const p = parseYMD(dateStr);
+        if (!p) return { inPeriod: false, code: 'OUT', label: 'Fecha inválida', day: 0 };
+        const inPeriod = (p.year === activeYear && p.month === activeMonth);
+        const qCode = p.day <= 15 ? 'Q1' : 'Q2';
+        const qLabel = p.day <= 15 ? 'Quincena 1' : 'Quincena 2';
+        return {
+          inPeriod,
+          code: inPeriod ? qCode : 'OUT',
+          qCode,
+          label: inPeriod ? qLabel : `${qLabel} (Otro periodo)`,
+          day: p.day
+        };
+      }
+
+      function uid(prefix) {
+        return prefix + '_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
+      }
+
+      /* =======================================================================
+         4. MOTOR FINANCIERO (REGLAS EXACTAS DE LA VERSIÓN v3)
+         ======================================================================= */
+      function getSundayRate(role, rates) {
+        return role === 'Auxiliar' ? Number(rates.sunday_aux || 0) : Number(rates.sunday_std || 0);
+      }
+
+      function calcQuincenaDev(emp, qObj, rates) {
+        const sunRate = getSundayRate(emp.role, rates);
+        const fixed = Number(emp.sueldoFijo || 0);
+        const daysPay = (Number(qObj.days) || 0) * (Number(rates.daily) || 0);
+        const sunPay = (Number(qObj.sundays) || 0) * sunRate;
+        const snackPay = (Number(qObj.snacks) || 0) * (Number(rates.snack) || 0);
+        const earlyPay = (Number(qObj.early) || 0) * (Number(rates.early) || 0);
+        const restPay = (Number(qObj.rest) || 0) * (Number(rates.rest) || 0);
+        const extraPay = (Number(qObj.extraShift) || 0) * (Number(rates.extra_shift) || 0);
+        const otPay = (Number(qObj.overtime) || 0) * (Number(rates.overtime_hr) || 0);
+        return {
+          fixed, daysPay, sunPay, sunRate, snackPay, earlyPay, restPay, extraPay, otPay,
+          total: fixed + daysPay + sunPay + snackPay + earlyPay + restPay + extraPay + otPay
+        };
+      }
+
+      function calcAllPayroll() {
+        const { year, month } = state.period;
+        const rates = state.rates;
+
+        // Agrupar descuentos del periodo activo por empleado y quincena
+        const dedMap = {};
+        state.employees.forEach(e => {
+          dedMap[e.id] = { q1: 0, q2: 0, q1List: [], q2List: [] };
+        });
+
+        state.deductions.forEach(d => {
+          const cls = classifyDate(d.date, year, month);
+          if (!cls.inPeriod) return;
+          if (!dedMap[d.empId]) return;
+          const amt = Number(d.amount) || 0;
+          if (cls.qCode === 'Q1') {
+            dedMap[d.empId].q1 += amt;
+            dedMap[d.empId].q1List.push(d);
+          } else {
+            dedMap[d.empId].q2 += amt;
+            dedMap[d.empId].q2List.push(d);
+          }
+        });
+
+        const rows = state.employees.map(emp => {
+          const q1Units = emp.q1 || emptyQuincena();
+          const q2Units = emp.q2 || emptyQuincena();
+          const dQ1 = calcQuincenaDev(emp, q1Units, rates);
+          const dQ2 = calcQuincenaDev(emp, q2Units, rates);
+
+          const descQ1 = dedMap[emp.id] ? dedMap[emp.id].q1 : 0;
+          const descQ2 = dedMap[emp.id] ? dedMap[emp.id].q2 : 0;
+
+          // Reglas exactas de arrastre Q1 -> Q2
+          const efectivoQ1 = Math.max(0, dQ1.total - descQ1);
+          const arrastreQ2 = Math.max(0, descQ1 - dQ1.total);
+          let statusQ1 = 'Sin Movimiento';
+          if (efectivoQ1 > 0) statusQ1 = 'Liquidado';
+          else if (arrastreQ2 > 0) statusQ1 = 'Arrastra a Q2';
+
+          // Reglas exactas Q2 con arrastre de Q1
+          const saldoAnt = arrastreQ2;
+          const efectivoQ2 = Math.max(0, dQ2.total - saldoAnt - descQ2);
+          const saldoPendCierre = Math.max(0, saldoAnt + descQ2 - dQ2.total);
+          let statusQ2 = 'Sin Movimiento';
+          if (efectivoQ2 > 0) statusQ2 = 'Liquidado';
+          else if (saldoPendCierre > 0) statusQ2 = 'Saldo Pendiente';
+
+          // Consolidado Mensual (sin duplicar arrastre en descuentos)
+          const mUnits = {
+            days: (Number(q1Units.days) || 0) + (Number(q2Units.days) || 0),
+            sundays: (Number(q1Units.sundays) || 0) + (Number(q2Units.sundays) || 0),
+            snacks: (Number(q1Units.snacks) || 0) + (Number(q2Units.snacks) || 0),
+            early: (Number(q1Units.early) || 0) + (Number(q2Units.early) || 0),
+            rest: (Number(q1Units.rest) || 0) + (Number(q2Units.rest) || 0),
+            extraShift: (Number(q1Units.extraShift) || 0) + (Number(q2Units.extraShift) || 0),
+            overtime: (Number(q1Units.overtime) || 0) + (Number(q2Units.overtime) || 0)
+          };
+          const totalDevMes = dQ1.total + dQ2.total;
+          const totalDescMes = descQ1 + descQ2;
+          const totalPagadoMes = efectivoQ1 + efectivoQ2;
+          let statusMes = 'Sin Movimiento';
+          if (totalPagadoMes > 0 && saldoPendCierre === 0) statusMes = 'Liquidado';
+          else if (saldoPendCierre > 0) statusMes = 'Saldo Pendiente';
+
+          return {
+            emp,
+            q1: { units: q1Units, breakdown: dQ1, dev: dQ1.total, desc: descQ1, descList: dedMap[emp.id].q1List, efectivo: efectivoQ1, arrastreQ2, status: statusQ1 },
+            q2: { units: q2Units, breakdown: dQ2, dev: dQ2.total, saldoAnt, desc: descQ2, descList: dedMap[emp.id].q2List, efectivo: efectivoQ2, saldoPendCierre, status: statusQ2 },
+            mes: {
+              units: mUnits,
+              fixedTotal: dQ1.fixed + dQ2.fixed,
+              dev: totalDevMes,
+              desc: totalDescMes,
+              descList: [...dedMap[emp.id].q1List, ...dedMap[emp.id].q2List],
+              efectivo: totalPagadoMes,
+              saldoPendCierre,
+              status: statusMes
+            }
+          };
+        });
+
+        // Totales Generales
+        const totals = {
+          q1: { fixed: 0, days: 0, sundays: 0, snacks: 0, early: 0, rest: 0, extraShift: 0, overtime: 0, dev: 0, desc: 0, efectivo: 0, arrastreQ2: 0, liquidados: 0 },
+          q2: { fixed: 0, days: 0, sundays: 0, snacks: 0, early: 0, rest: 0, extraShift: 0, overtime: 0, dev: 0, saldoAnt: 0, desc: 0, efectivo: 0, saldoPendCierre: 0, liquidados: 0 },
+          mes: { fixed: 0, days: 0, sundays: 0, snacks: 0, early: 0, rest: 0, extraShift: 0, overtime: 0, dev: 0, desc: 0, efectivo: 0, saldoPendCierre: 0, liquidados: 0 }
+        };
+
+        const byRole = {};
+
+        rows.forEach(r => {
+          // Q1
+          totals.q1.fixed += r.q1.breakdown.fixed;
+          totals.q1.days += Number(r.q1.units.days) || 0;
+          totals.q1.sundays += Number(r.q1.units.sundays) || 0;
+          totals.q1.snacks += Number(r.q1.units.snacks) || 0;
+          totals.q1.early += Number(r.q1.units.early) || 0;
+          totals.q1.rest += Number(r.q1.units.rest) || 0;
+          totals.q1.extraShift += Number(r.q1.units.extraShift) || 0;
+          totals.q1.overtime += Number(r.q1.units.overtime) || 0;
+          totals.q1.dev += r.q1.dev;
+          totals.q1.desc += r.q1.desc;
+          totals.q1.efectivo += r.q1.efectivo;
+          totals.q1.arrastreQ2 += r.q1.arrastreQ2;
+          if (r.q1.efectivo > 0) totals.q1.liquidados++;
+
+          // Q2
+          totals.q2.fixed += r.q2.breakdown.fixed;
+          totals.q2.days += Number(r.q2.units.days) || 0;
+          totals.q2.sundays += Number(r.q2.units.sundays) || 0;
+          totals.q2.snacks += Number(r.q2.units.snacks) || 0;
+          totals.q2.early += Number(r.q2.units.early) || 0;
+          totals.q2.rest += Number(r.q2.units.rest) || 0;
+          totals.q2.extraShift += Number(r.q2.units.extraShift) || 0;
+          totals.q2.overtime += Number(r.q2.units.overtime) || 0;
+          totals.q2.dev += r.q2.dev;
+          totals.q2.saldoAnt += r.q2.saldoAnt;
+          totals.q2.desc += r.q2.desc;
+          totals.q2.efectivo += r.q2.efectivo;
+          totals.q2.saldoPendCierre += r.q2.saldoPendCierre;
+          if (r.q2.efectivo > 0) totals.q2.liquidados++;
+
+          // Mensual
+          totals.mes.fixed += r.mes.fixedTotal;
+          totals.mes.days += r.mes.units.days;
+          totals.mes.sundays += r.mes.units.sundays;
+          totals.mes.snacks += r.mes.units.snacks;
+          totals.mes.early += r.mes.units.early;
+          totals.mes.rest += r.mes.units.rest;
+          totals.mes.extraShift += r.mes.units.extraShift;
+          totals.mes.overtime += r.mes.units.overtime;
+          totals.mes.dev += r.mes.dev;
+          totals.mes.desc += r.mes.desc;
+          totals.mes.efectivo += r.mes.efectivo;
+          totals.mes.saldoPendCierre += r.mes.saldoPendCierre;
+          if (r.mes.efectivo > 0) totals.mes.liquidados++;
+
+          // Por cargo
+          const role = r.emp.role;
+          if (!byRole[role]) {
+            byRole[role] = { role, count: 0, dev: 0, desc: 0, efectivo: 0, saldoPend: 0 };
+          }
+          byRole[role].count++;
+          byRole[role].dev += r.mes.dev;
+          byRole[role].desc += r.mes.desc;
+          byRole[role].efectivo += r.mes.efectivo;
+          byRole[role].saldoPend += r.mes.saldoPendCierre;
+        });
+
+        return { rows, totals, byRole: Object.values(byRole) };
+      }
+
+      function calcDeliveries() {
+        const { year, month } = state.period;
+        let totalQ1 = 0;
+        let totalQ2 = 0;
+        let totalMes = 0;
+        const byDay = {}; // dayNumber -> amount
+        const driverMap = {};
+
+        // Inicializar todos los domiciliarios del directorio
+        state.drivers.forEach(d => {
+          driverMap[d] = { driver: d, total: 0, daysSet: new Set(), count: 0 };
+        });
+
+        state.deliveries.forEach(item => {
+          const cls = classifyDate(item.date, year, month);
+          if (!cls.inPeriod) return;
+          const amt = Number(item.amount) || 0;
+          totalMes += amt;
+          if (cls.qCode === 'Q1') totalQ1 += amt;
+          else totalQ2 += amt;
+
+          byDay[cls.day] = (byDay[cls.day] || 0) + amt;
+
+          if (!driverMap[item.driver]) {
+            driverMap[item.driver] = { driver: item.driver, total: 0, daysSet: new Set(), count: 0 };
+          }
+          driverMap[item.driver].total += amt;
+          driverMap[item.driver].count++;
+          if (amt > 0) driverMap[item.driver].daysSet.add(item.date);
+        });
+
+        const byDriver = Object.values(driverMap)
+          .map(x => ({
+            driver: x.driver,
+            daysPaid: x.daysSet.size,
+            total: x.total,
+            pct: totalMes > 0 ? x.total / totalMes : 0
+          }))
+          .sort((a, b) => b.total - a.total);
+
+        return { totalQ1, totalQ2, totalMes, byDay, byDriver };
+      }
+
+      function calcCashFlow(payroll, deliv) {
+        const { year, month } = state.period;
+        const lastDay = getDaysInMonth(year, month);
+        const mm = pad2(month);
+        const saldoInicial = Number(state.cashFlow.saldoInicial) || 0;
+
+        let runningBalance = saldoInicial;
+        let sumVentasEf = 0;
+        let sumVentasTr = 0;
+        let sumVentasTot = 0;
+        let sumInsumos = 0;
+        let sumDomicilios = 0;
+        let sumNomina = 0;
+
+        const days = [];
+        for (let d = 1; d <= lastDay; d++) {
+          const dateKey = `${year}-${mm}-${pad2(d)}`;
+          const rec = state.cashFlow.days[dateKey] || { ventasEfectivo: 0, ventasTransf: 0, insumos: 0 };
+          const vEf = Number(rec.ventasEfectivo) || 0;
+          const vTr = Number(rec.ventasTransf) || 0;
+          const vTot = vEf + vTr;
+          const ins = Number(rec.insumos) || 0;
+          const dom = deliv.byDay[d] || 0;
+
+          // Nómina cargada automáticamente el día 15 (Q1) y el último día del mes (Q2)
+          let nom = 0;
+          if (d === 15) nom = payroll.totals.q1.efectivo;
+          else if (d === lastDay) nom = payroll.totals.q2.efectivo;
+
+          const flujoDia = vTot - ins - dom - nom;
+          runningBalance += flujoDia;
+
+          sumVentasEf += vEf;
+          sumVentasTr += vTr;
+          sumVentasTot += vTot;
+          sumInsumos += ins;
+          sumDomicilios += dom;
+          sumNomina += nom;
+
+          days.push({
+            day: d,
+            dateKey,
+            dateLabel: `${pad2(d)}/${mm}/${year}`,
+            ventasEfectivo: vEf,
+            ventasTransf: vTr,
+            totalVentas: vTot,
+            insumos: ins,
+            domicilios: dom,
+            nomina: nom,
+            flujoDia,
+            saldoAcum: runningBalance,
+            isPayrollDay: (d === 15 || d === lastDay)
+          });
+        }
+
+        const totalEgresos = sumInsumos + sumDomicilios + sumNomina;
+        const flujoNetoOp = sumVentasTot - totalEgresos;
+        const pctNomina = sumVentasTot > 0 ? sumNomina / sumVentasTot : 0;
+        const pctDomicilios = sumVentasTot > 0 ? sumDomicilios / sumVentasTot : 0;
+        const pctMargen = sumVentasTot > 0 ? flujoNetoOp / sumVentasTot : 0;
+
+        return {
+          saldoInicial,
+          days,
+          totals: {
+            ventasEfectivo: sumVentasEf,
+            ventasTransf: sumVentasTr,
+            totalVentas: sumVentasTot,
+            insumos: sumInsumos,
+            domicilios: sumDomicilios,
+            nomina: sumNomina,
+            totalEgresos,
+            flujoNetoOp,
+            saldoFinal: runningBalance,
+            pctNomina,
+            pctDomicilios,
+            pctMargen
+          }
+        };
+      }
+
+      /* =======================================================================
+         5. GRÁFICOS SVG PUROS (SIN DEPENDENCIAS EXTERNAS)
+         ======================================================================= */
+      function renderPayrollBarChart(payroll) {
+        const container = document.getElementById('chart-payroll');
+        const activeRows = payroll.rows.filter(r => r.mes.efectivo > 0 || r.mes.dev > 0);
+        if (!activeRows.length) {
+          container.innerHTML = '<div class="empty-state">Sin pagos de nómina registrados en este periodo.</div>';
+          return;
+        }
+
+        const W = 560;
+        const H = 250;
+        const padL = 56, padR = 16, padT = 26, padB = 56;
+        const plotW = W - padL - padR;
+        const plotH = H - padT - padB;
+        const maxVal = Math.max(...activeRows.map(r => r.mes.efectivo), 100000);
+        const stepW = plotW / activeRows.length;
+        const barW = Math.min(38, Math.max(16, stepW * 0.62));
+
+        let gridSvg = '';
+        for (let i = 0; i <= 4; i++) {
+          const frac = i / 4;
+          const y = padT + plotH - frac * plotH;
+          const val = Math.round(maxVal * frac);
+          const lbl = val >= 1000000 ? (val / 1000000).toFixed(1) + 'M' : Math.round(val / 1000) + 'k';
+          gridSvg += `
+            <line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#E3ECEC" stroke-width="1"/>
+            <text x="${padL - 8}" y="${y + 4}" text-anchor="end" fill="#5A7073" font-size="10.5">${lbl}</text>
+          `;
+        }
+
+        let barsSvg = '';
+        activeRows.forEach((r, idx) => {
+          const val = r.mes.efectivo;
+          const h = (val / maxVal) * plotH;
+          const x = padL + idx * stepW + (stepW - barW) / 2;
+          const y = padT + plotH - h;
+          const shortVal = val >= 1000000 ? (val / 1000000).toFixed(2) + 'M' : Math.round(val / 1000) + 'k';
+          const shortName = r.emp.name.length > 9 ? r.emp.name.slice(0, 8) + '…' : r.emp.name;
+          barsSvg += `
+            <g>
+              <title>${escHtml(r.emp.name)} (${escHtml(r.emp.role)}): ${fmtMoney(val)}</title>
+              <rect x="${x}" y="${y}" width="${barW}" height="${Math.max(2, h)}" rx="4" fill="#325D63"/>
+              <text x="${x + barW / 2}" y="${y - 6}" text-anchor="middle" fill="#1F3A3D" font-size="10" font-weight="700">${shortVal}</text>
+              <text x="${x + barW / 2}" y="${padT + plotH + 16}" text-anchor="middle" fill="#1A2B2E" font-size="10.5" font-weight="600">${escHtml(shortName)}</text>
+            </g>
+          `;
+        });
+
+        container.innerHTML = `
+          <svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Gráfico de nómina por empleado">
+            ${gridSvg}
+            <line x1="${padL}" y1="${padT + plotH}" x2="${W - padR}" y2="${padT + plotH}" stroke="#BFCFD1" stroke-width="1.2"/>
+            ${barsSvg}
+          </svg>
+        `;
+      }
+
+      function renderDeliveryHorizChart(deliv) {
+        const container = document.getElementById('chart-deliveries');
+        const list = deliv.byDriver.filter(d => d.total > 0);
+        if (!list.length) {
+          container.innerHTML = '<div class="empty-state">Sin pagos a domiciliarios registrados en este periodo.</div>';
+          return;
+        }
+
+        const W = 540;
+        const rowH = 32;
+        const padL = 112, padR = 92, padT = 12, padB = 12;
+        const H = Math.max(160, padT + padB + list.length * rowH);
+        const plotW = W - padL - padR;
+        const maxVal = Math.max(...list.map(d => d.total), 1);
+
+        let rowsSvg = '';
+        list.forEach((d, idx) => {
+          const y = padT + idx * rowH;
+          const bw = Math.max(4, (d.total / maxVal) * plotW);
+          const barColor = idx === 0 ? '#1F3A3D' : (idx === 1 ? '#325D63' : '#4E878F');
+          const lblName = d.driver.length > 13 ? d.driver.slice(0, 12) + '…' : d.driver;
+          rowsSvg += `
+            <g>
+              <title>${escHtml(d.driver)}: ${fmtMoney(d.total)} (${fmtPct(d.pct)})</title>
+              <text x="${padL - 8}" y="${y + 18}" text-anchor="end" fill="#1A2B2E" font-size="11" font-weight="600">${escHtml(lblName)}</text>
+              <rect x="${padL}" y="${y + 5}" width="${plotW}" height="18" rx="4" fill="#EEF3F3"/>
+              <rect x="${padL}" y="${y + 5}" width="${bw}" height="18" rx="4" fill="${barColor}"/>
+              <text x="${padL + plotW + 8}" y="${y + 18}" text-anchor="start" fill="#1F3A3D" font-size="11" font-weight="700">${fmtMoney(d.total)}</text>
+            </g>
+          `;
+        });
+
+        container.innerHTML = `
+          <svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Gráfico de pagos por domiciliario">
+            ${rowsSvg}
+          </svg>
+        `;
+      }
+
+      /* =======================================================================
+         6. RENDERIZADO DE CADA MÓDULO
+         ======================================================================= */
+      function renderTopbar() {
+        const pInfo = getPeriodInfo(state.period.year, state.period.month);
+        document.getElementById('topbar-title').textContent = VIEW_TITLES[activeView] || 'Queen Sazón';
+        document.getElementById('topbar-period').textContent = `${pInfo.label} (${pInfo.monthStart} — ${pInfo.monthEnd})`;
+      }
+
+      // ---- MÓDULO 1: DASHBOARD Y FLUJO DE CAJA ----
+      function renderDashboard() {
+        const payroll = calcAllPayroll();
+        const deliv = calcDeliveries();
+        const cf = calcCashFlow(payroll, deliv);
+
+        const desembolso = payroll.totals.mes.efectivo + deliv.totalMes;
+
+        document.getElementById('dash-kpis').innerHTML = `
+          <div class="kpi-card kpi-mint">
+            <div class="kpi-label">Efectivo Nómina Mes</div>
+            <div class="kpi-value">${fmtMoney(payroll.totals.mes.efectivo)}</div>
+            <div class="kpi-meta">Q1: ${fmtMoney(payroll.totals.q1.efectivo)} · Q2: ${fmtMoney(payroll.totals.q2.efectivo)}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Total Domicilios Mes</div>
+            <div class="kpi-value">${fmtMoney(deliv.totalMes)}</div>
+            <div class="kpi-meta">Q1: ${fmtMoney(deliv.totalQ1)} · Q2: ${fmtMoney(deliv.totalQ2)}</div>
+          </div>
+          <div class="kpi-card kpi-dark">
+            <div class="kpi-label">Desembolso Operativo</div>
+            <div class="kpi-value">${fmtMoney(desembolso)}</div>
+            <div class="kpi-meta">Nómina Efectivo + Domicilios</div>
+          </div>
+          <div class="kpi-card kpi-amber">
+            <div class="kpi-label">Saldos Pendientes Emp.</div>
+            <div class="kpi-value">${fmtMoney(payroll.totals.mes.saldoPendCierre)}</div>
+            <div class="kpi-meta">Arrastre activo a siguiente periodo</div>
+          </div>
+        `;
+
+        renderPayrollBarChart(payroll);
+        renderDeliveryHorizChart(deliv);
+
+        const saldoInput = document.getElementById('cf-saldo-inicial');
+        if (document.activeElement !== saldoInput) {
+          saldoInput.value = cf.saldoInicial;
+        }
+
+        renderCashFlowHealthAndFooter(cf);
+
+        // Renderizar filas del Flujo de Caja
+        const tbody = document.getElementById('cf-tbody');
+        tbody.innerHTML = cf.days.map(row => `
+          <tr data-cf-date="${row.dateKey}">
+            <td class="sticky-col">
+              <strong>Día ${pad2(row.day)}</strong>
+              <span class="emp-role" style="margin-left:5px;">${row.dateLabel}</span>
+              ${row.isPayrollDay ? '<span class="badge badge-teal" style="margin-left:6px;font-size:10px;">Pago Nómina</span>' : ''}
+            </td>
+            <td class="num"><input type="number" class="tbl-input tbl-input-lg cf-input" data-date="${row.dateKey}" data-field="ventasEfectivo" min="0" step="1000" value="${row.ventasEfectivo}"></td>
+            <td class="num"><input type="number" class="tbl-input tbl-input-lg cf-input" data-date="${row.dateKey}" data-field="ventasTransf" min="0" step="1000" value="${row.ventasTransf}"></td>
+            <td class="num cf-vtot" style="font-weight:700;">${fmtNum(row.totalVentas)}</td>
+            <td class="num"><input type="number" class="tbl-input tbl-input-lg cf-input" data-date="${row.dateKey}" data-field="insumos" min="0" step="1000" value="${row.insumos}"></td>
+            <td class="num ${row.domicilios > 0 ? 'text-red' : 'text-muted'}">${fmtNum(row.domicilios)}</td>
+            <td class="num ${row.nomina > 0 ? 'text-red' : 'text-muted'}">${fmtNum(row.nomina)}</td>
+            <td class="num cf-flujo ${row.flujoDia > 0 ? 'text-mint' : (row.flujoDia < 0 ? 'text-red' : 'text-muted')}">${fmtNum(row.flujoDia)}</td>
+            <td class="num cf-saldo ${row.saldoAcum < 0 ? 'text-red' : 'text-mint'}">${fmtNum(row.saldoAcum)}</td>
+          </tr>
+        `).join('');
+      }
+
+      function renderCashFlowHealthAndFooter(cf) {
+        const t = cf.totals;
+        document.getElementById('cf-health').innerHTML = `
+          <div class="health-item hl-mint">
+            <div class="health-label">Total Ventas Mes</div>
+            <div class="health-val">${fmtMoney(t.totalVentas)}</div>
+          </div>
+          <div class="health-item hl-red">
+            <div class="health-label">Total Egresos</div>
+            <div class="health-val">${fmtMoney(t.totalEgresos)}</div>
+          </div>
+          <div class="health-item ${t.flujoNetoOp >= 0 ? 'hl-mint' : 'hl-red'}">
+            <div class="health-label">Flujo Neto Operativo</div>
+            <div class="health-val">${fmtMoney(t.flujoNetoOp)}</div>
+          </div>
+          <div class="health-item ${t.saldoFinal >= 0 ? '' : 'hl-red'}">
+            <div class="health-label">Saldo Final Caja</div>
+            <div class="health-val">${fmtMoney(t.saldoFinal)}</div>
+          </div>
+          <div class="health-item ${t.pctNomina > 0.35 ? 'hl-amber' : ''}">
+            <div class="health-label">% Nómina / Ventas</div>
+            <div class="health-val">${t.totalVentas > 0 ? fmtPct(t.pctNomina) : '—'}</div>
+          </div>
+          <div class="health-item">
+            <div class="health-label">% Domicilios / Ventas</div>
+            <div class="health-val">${t.totalVentas > 0 ? fmtPct(t.pctDomicilios) : '—'}</div>
+          </div>
+          <div class="health-item ${t.pctMargen > 0 ? 'hl-mint' : (t.totalVentas > 0 ? 'hl-red' : '')}">
+            <div class="health-label">% Margen Operativo</div>
+            <div class="health-val">${t.totalVentas > 0 ? fmtPct(t.pctMargen) : '—'}</div>
+          </div>
+        `;
+
+        document.getElementById('cf-tfoot').innerHTML = `
+          <tr>
+            <td class="sticky-col">TOTALES DEL MES</td>
+            <td class="num">${fmtNum(t.ventasEfectivo)}</td>
+            <td class="num">${fmtNum(t.ventasTransf)}</td>
+            <td class="num">${fmtNum(t.totalVentas)}</td>
+            <td class="num">${fmtNum(t.insumos)}</td>
+            <td class="num">${fmtNum(t.domicilios)}</td>
+            <td class="num">${fmtNum(t.nomina)}</td>
+            <td class="num">${fmtNum(t.flujoNetoOp)}</td>
+            <td class="num">${fmtNum(t.saldoFinal)}</td>
+          </tr>
+        `;
+      }
+
+      // Actualización dirigida de Flujo de Caja para no perder foco al teclear
+      function updateCashFlowCalculatedCells() {
+        const payroll = calcAllPayroll();
+        const deliv = calcDeliveries();
+        const cf = calcCashFlow(payroll, deliv);
+        renderCashFlowHealthAndFooter(cf);
+
+        cf.days.forEach(row => {
+          const tr = document.querySelector(`tr[data-cf-date="${row.dateKey}"]`);
+          if (!tr) return;
+          const vTotEl = tr.querySelector('.cf-vtot');
+          const flEl = tr.querySelector('.cf-flujo');
+          const salEl = tr.querySelector('.cf-saldo');
+          if (vTotEl) vTotEl.textContent = fmtNum(row.totalVentas);
+          if (flEl) {
+            flEl.textContent = fmtNum(row.flujoDia);
+            flEl.className = `num cf-flujo ${row.flujoDia > 0 ? 'text-mint' : (row.flujoDia < 0 ? 'text-red' : 'text-muted')}`;
+          }
+          if (salEl) {
+            salEl.textContent = fmtNum(row.saldoAcum);
+            salEl.className = `num cf-saldo ${row.saldoAcum < 0 ? 'text-red' : 'text-mint'}`;
+          }
+        });
+      }
+
+      // ---- MÓDULO 2: NÓMINA (Q1 / Q2 / CONSOLIDADO MENSUAL) ----
+      function statusBadge(status) {
+        if (status === 'Liquidado') return '<span class="badge badge-mint">Liquidado</span>';
+        if (status === 'Arrastra a Q2' || status === 'Saldo Pendiente') return `<span class="badge badge-amber">${escHtml(status)}</span>`;
+        return '<span class="badge badge-neutral">Sin Movimiento</span>';
+      }
+
+      function renderPayroll() {
+        const payroll = calcAllPayroll();
+        const pInfo = getPeriodInfo(state.period.year, state.period.month);
+
+        // Actualizar botones de sub-pestaña
+        document.querySelectorAll('#payroll-subtabs .subtab-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.subtab === activePayrollSubtab);
+        });
+
+        const rangeEl = document.getElementById('payroll-date-range');
+        const titleEl = document.getElementById('payroll-table-title');
+        const subEl = document.getElementById('payroll-table-sub');
+        const kpisEl = document.getElementById('payroll-kpis');
+        const wrapEl = document.getElementById('payroll-table-container');
+        const roleCard = document.getElementById('payroll-role-card');
+
+        if (activePayrollSubtab === 'q1') {
+          rangeEl.textContent = `Periodo Q1: ${pInfo.q1Start} al ${pInfo.q1End}`;
+          titleEl.textContent = `Nómina Quincena 1 — ${pInfo.label}`;
+          subEl.textContent = 'Edita las cantidades en crema. Descuentos se alimentan desde "Descuentos y Vales" y saldos negativos arrastran a Q2.';
+          roleCard.style.display = 'none';
+
+          const t = payroll.totals.q1;
+          kpisEl.innerHTML = `
+            <div class="kpi-card">
+              <div class="kpi-label">Total Devengado Q1</div>
+              <div class="kpi-value">${fmtMoney(t.dev)}</div>
+              <div class="kpi-meta">${t.liquidados} empleados liquidados</div>
+            </div>
+            <div class="kpi-card kpi-red">
+              <div class="kpi-label">Descuentos Q1</div>
+              <div class="kpi-value">${fmtMoney(t.desc)}</div>
+              <div class="kpi-meta">Traídos de Bitácora Descuentos</div>
+            </div>
+            <div class="kpi-card kpi-mint">
+              <div class="kpi-label">Efectivo Real a Pagar Q1</div>
+              <div class="kpi-value">${fmtMoney(t.efectivo)}</div>
+              <div class="kpi-meta">Desembolso del día 15</div>
+            </div>
+            <div class="kpi-card kpi-amber">
+              <div class="kpi-label">Saldos Arrastrados a Q2</div>
+              <div class="kpi-value">${fmtMoney(t.arrastreQ2)}</div>
+              <div class="kpi-meta">Se descuenta automáticamente en Q2</div>
+            </div>
+          `;
+
+          wrapEl.innerHTML = `
+            <table>
+              <thead>
+                <tr>
+                  <th class="sticky-col">Empleado / Cargo</th>
+                  <th class="num">Sueldo Fijo</th>
+                  <th class="num">Días</th>
+                  <th class="num">Dom./Fest.</th>
+                  <th class="num">Meriendas</th>
+                  <th class="num">Madrug.</th>
+                  <th class="num">Descansos</th>
+                  <th class="num">Turno Adic.</th>
+                  <th class="num">Hrs. Ext.</th>
+                  <th class="num">Devengado</th>
+                  <th class="num">Desc. Q1</th>
+                  <th class="num">Efectivo Q1</th>
+                  <th class="num">Arrastra Q2</th>
+                  <th class="center">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${payroll.rows.map(r => `
+                  <tr data-pay-emp="${r.emp.id}" data-pay-q="q1">
+                    <td class="sticky-col">
+                      <span class="emp-name">${escHtml(r.emp.name)}</span>
+                      <span class="emp-role">${escHtml(r.emp.role)} · ${r.emp.role === 'Auxiliar' ? 'Dom $' + fmtNum(state.rates.sunday_aux) : 'Dom $' + fmtNum(state.rates.sunday_std)}</span>
+                    </td>
+                    <td class="num text-muted">${fmtNum(r.q1.breakdown.fixed)}</td>
+                    <td class="num"><input type="number" class="tbl-input pay-input" data-emp="${r.emp.id}" data-q="q1" data-field="days" min="0" step="0.5" value="${r.q1.units.days}"></td>
+                    <td class="num"><input type="number" class="tbl-input pay-input" data-emp="${r.emp.id}" data-q="q1" data-field="sundays" min="0" step="1" value="${r.q1.units.sundays}"></td>
+                    <td class="num"><input type="number" class="tbl-input pay-input" data-emp="${r.emp.id}" data-q="q1" data-field="snacks" min="0" step="1" value="${r.q1.units.snacks}"></td>
+                    <td class="num"><input type="number" class="tbl-input pay-input" data-emp="${r.emp.id}" data-q="q1" data-field="early" min="0" step="1" value="${r.q1.units.early}"></td>
+                    <td class="num"><input type="number" class="tbl-input pay-input" data-emp="${r.emp.id}" data-q="q1" data-field="rest" min="0" step="1" value="${r.q1.units.rest}"></td>
+                    <td class="num"><input type="number" class="tbl-input pay-input" data-emp="${r.emp.id}" data-q="q1" data-field="extraShift" min="0" step="1" value="${r.q1.units.extraShift}"></td>
+                    <td class="num"><input type="number" class="tbl-input pay-input" data-emp="${r.emp.id}" data-q="q1" data-field="overtime" min="0" step="0.5" value="${r.q1.units.overtime}"></td>
+                    <td class="num p-dev" style="font-weight:700;">${fmtNum(r.q1.dev)}</td>
+                    <td class="num p-desc ${r.q1.desc > 0 ? 'text-red' : 'text-muted'}">${fmtNum(r.q1.desc)}</td>
+                    <td class="num p-ef ${r.q1.efectivo > 0 ? 'cell-highlight-mint' : 'text-muted'}">${fmtNum(r.q1.efectivo)}</td>
+                    <td class="num p-arr ${r.q1.arrastreQ2 > 0 ? 'cell-highlight-amber' : 'text-muted'}">${fmtNum(r.q1.arrastreQ2)}</td>
+                    <td class="center p-stat">${statusBadge(r.q1.status)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+              <tfoot id="payroll-tfoot">
+                ${buildPayrollFooterHTML('q1', t)}
+              </tfoot>
+            </table>
+          `;
+        } else if (activePayrollSubtab === 'q2') {
+          rangeEl.textContent = `Periodo Q2: ${pInfo.q2Start} al ${pInfo.q2End}`;
+          titleEl.textContent = `Nómina Quincena 2 — ${pInfo.label}`;
+          subEl.textContent = 'Incluye el arrastre automático de saldos pendientes de Quincena 1 (Saldo Ant. Q1).';
+          roleCard.style.display = 'none';
+
+          const t = payroll.totals.q2;
+          kpisEl.innerHTML = `
+            <div class="kpi-card">
+              <div class="kpi-label">Total Devengado Q2</div>
+              <div class="kpi-value">${fmtMoney(t.dev)}</div>
+              <div class="kpi-meta">${t.liquidados} empleados liquidados</div>
+            </div>
+            <div class="kpi-card kpi-amber">
+              <div class="kpi-label">Saldo Ant. (Q1) + Desc. Q2</div>
+              <div class="kpi-value">${fmtMoney(t.saldoAnt + t.desc)}</div>
+              <div class="kpi-meta">Arrastre: ${fmtMoney(t.saldoAnt)} · Desc Q2: ${fmtMoney(t.desc)}</div>
+            </div>
+            <div class="kpi-card kpi-mint">
+              <div class="kpi-label">Efectivo Real a Pagar Q2</div>
+              <div class="kpi-value">${fmtMoney(t.efectivo)}</div>
+              <div class="kpi-meta">Desembolso día ${pInfo.lastDay}</div>
+            </div>
+            <div class="kpi-card kpi-red">
+              <div class="kpi-label">Saldo Pendiente Cierre</div>
+              <div class="kpi-value">${fmtMoney(t.saldoPendCierre)}</div>
+              <div class="kpi-meta">Pendiente para próximo mes</div>
+            </div>
+          `;
+
+          wrapEl.innerHTML = `
+            <table>
+              <thead>
+                <tr>
+                  <th class="sticky-col">Empleado / Cargo</th>
+                  <th class="num">Sueldo Fijo</th>
+                  <th class="num">Días</th>
+                  <th class="num">Dom./Fest.</th>
+                  <th class="num">Meriendas</th>
+                  <th class="num">Madrug.</th>
+                  <th class="num">Descansos</th>
+                  <th class="num">Turno Adic.</th>
+                  <th class="num">Hrs. Ext.</th>
+                  <th class="num">Devengado</th>
+                  <th class="num">Saldo Ant. Q1</th>
+                  <th class="num">Desc. Q2</th>
+                  <th class="num">Efectivo Q2</th>
+                  <th class="num">Saldo Cierre</th>
+                  <th class="center">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${payroll.rows.map(r => `
+                  <tr data-pay-emp="${r.emp.id}" data-pay-q="q2">
+                    <td class="sticky-col">
+                      <span class="emp-name">${escHtml(r.emp.name)}</span>
+                      <span class="emp-role">${escHtml(r.emp.role)}</span>
+                    </td>
+                    <td class="num text-muted">${fmtNum(r.q2.breakdown.fixed)}</td>
+                    <td class="num"><input type="number" class="tbl-input pay-input" data-emp="${r.emp.id}" data-q="q2" data-field="days" min="0" step="0.5" value="${r.q2.units.days}"></td>
+                    <td class="num"><input type="number" class="tbl-input pay-input" data-emp="${r.emp.id}" data-q="q2" data-field="sundays" min="0" step="1" value="${r.q2.units.sundays}"></td>
+                    <td class="num"><input type="number" class="tbl-input pay-input" data-emp="${r.emp.id}" data-q="q2" data-field="snacks" min="0" step="1" value="${r.q2.units.snacks}"></td>
+                    <td class="num"><input type="number" class="tbl-input pay-input" data-emp="${r.emp.id}" data-q="q2" data-field="early" min="0" step="1" value="${r.q2.units.early}"></td>
+                    <td class="num"><input type="number" class="tbl-input pay-input" data-emp="${r.emp.id}" data-q="q2" data-field="rest" min="0" step="1" value="${r.q2.units.rest}"></td>
+                    <td class="num"><input type="number" class="tbl-input pay-input" data-emp="${r.emp.id}" data-q="q2" data-field="extraShift" min="0" step="1" value="${r.q2.units.extraShift}"></td>
+                    <td class="num"><input type="number" class="tbl-input pay-input" data-emp="${r.emp.id}" data-q="q2" data-field="overtime" min="0" step="0.5" value="${r.q2.units.overtime}"></td>
+                    <td class="num p-dev" style="font-weight:700;">${fmtNum(r.q2.dev)}</td>
+                    <td class="num p-ant ${r.q2.saldoAnt > 0 ? 'cell-highlight-amber' : 'text-muted'}">${fmtNum(r.q2.saldoAnt)}</td>
+                    <td class="num p-desc ${r.q2.desc > 0 ? 'text-red' : 'text-muted'}">${fmtNum(r.q2.desc)}</td>
+                    <td class="num p-ef ${r.q2.efectivo > 0 ? 'cell-highlight-mint' : 'text-muted'}">${fmtNum(r.q2.efectivo)}</td>
+                    <td class="num p-cierre ${r.q2.saldoPendCierre > 0 ? 'cell-highlight-amber' : 'text-muted'}">${fmtNum(r.q2.saldoPendCierre)}</td>
+                    <td class="center p-stat">${statusBadge(r.q2.status)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+              <tfoot id="payroll-tfoot">
+                ${buildPayrollFooterHTML('q2', t)}
+              </tfoot>
+            </table>
+          `;
+        } else {
+          // CONSOLIDADO MENSUAL
+          rangeEl.textContent = `Periodo Mensual: ${pInfo.monthStart} al ${pInfo.monthEnd}`;
+          titleEl.textContent = `Consolidado Mensual Automático — ${pInfo.label}`;
+          subEl.textContent = '100% automático (Quincena 1 + Quincena 2). Sin duplicar descuentos arrastrados.';
+          roleCard.style.display = 'block';
+
+          const t = payroll.totals.mes;
+          kpisEl.innerHTML = `
+            <div class="kpi-card">
+              <div class="kpi-label">Devengado Total Mes</div>
+              <div class="kpi-value">${fmtMoney(t.dev)}</div>
+              <div class="kpi-meta">${t.days} días trabajados acumulados</div>
+            </div>
+            <div class="kpi-card kpi-red">
+              <div class="kpi-label">Descuentos Reales Mes</div>
+              <div class="kpi-value">${fmtMoney(t.desc)}</div>
+              <div class="kpi-meta">Sin duplicación de arrastres</div>
+            </div>
+            <div class="kpi-card kpi-mint">
+              <div class="kpi-label">Total Efectivo Pagado</div>
+              <div class="kpi-value">${fmtMoney(t.efectivo)}</div>
+              <div class="kpi-meta">${t.liquidados} empleados con pago</div>
+            </div>
+            <div class="kpi-card kpi-amber">
+              <div class="kpi-label">Saldo Pendiente Cierre</div>
+              <div class="kpi-value">${fmtMoney(t.saldoPendCierre)}</div>
+              <div class="kpi-meta">Deuda acumulada al fin de mes</div>
+            </div>
+          `;
+
+          wrapEl.innerHTML = `
+            <table>
+              <thead>
+                <tr>
+                  <th class="sticky-col">Empleado / Cargo</th>
+                  <th class="num">Días</th>
+                  <th class="num">Dom.</th>
+                  <th class="num">Meriend.</th>
+                  <th class="num">Madrug.</th>
+                  <th class="num">Descans.</th>
+                  <th class="num">T. Adic.</th>
+                  <th class="num">H. Ext.</th>
+                  <th class="num">Devengado Mes</th>
+                  <th class="num">Descuentos Mes</th>
+                  <th class="num">Pagado Q1</th>
+                  <th class="num">Pagado Q2</th>
+                  <th class="num">Total Pagado Mes</th>
+                  <th class="num">Saldo Cierre</th>
+                  <th class="center">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${payroll.rows.map(r => `
+                  <tr>
+                    <td class="sticky-col">
+                      <span class="emp-name">${escHtml(r.emp.name)}</span>
+                      <span class="emp-role">${escHtml(r.emp.role)}</span>
+                    </td>
+                    <td class="num">${r.mes.units.days}</td>
+                    <td class="num">${r.mes.units.sundays}</td>
+                    <td class="num">${r.mes.units.snacks}</td>
+                    <td class="num">${r.mes.units.early}</td>
+                    <td class="num">${r.mes.units.rest}</td>
+                    <td class="num">${r.mes.units.extraShift}</td>
+                    <td class="num">${r.mes.units.overtime}</td>
+                    <td class="num" style="font-weight:700;">${fmtNum(r.mes.dev)}</td>
+                    <td class="num ${r.mes.desc > 0 ? 'text-red' : 'text-muted'}">${fmtNum(r.mes.desc)}</td>
+                    <td class="num">${fmtNum(r.q1.efectivo)}</td>
+                    <td class="num">${fmtNum(r.q2.efectivo)}</td>
+                    <td class="num ${r.mes.efectivo > 0 ? 'cell-highlight-mint' : 'text-muted'}">${fmtNum(r.mes.efectivo)}</td>
+                    <td class="num ${r.mes.saldoPendCierre > 0 ? 'cell-highlight-amber' : 'text-muted'}">${fmtNum(r.mes.saldoPendCierre)}</td>
+                    <td class="center">${statusBadge(r.mes.status)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td class="sticky-col">TOTALES MENSUALES</td>
+                  <td class="num">${t.days}</td>
+                  <td class="num">${t.sundays}</td>
+                  <td class="num">${t.snacks}</td>
+                  <td class="num">${t.early}</td>
+                  <td class="num">${t.rest}</td>
+                  <td class="num">${t.extraShift}</td>
+                  <td class="num">${t.overtime}</td>
+                  <td class="num">${fmtNum(t.dev)}</td>
+                  <td class="num">${fmtNum(t.desc)}</td>
+                  <td class="num">${fmtNum(payroll.totals.q1.efectivo)}</td>
+                  <td class="num">${fmtNum(payroll.totals.q2.efectivo)}</td>
+                  <td class="num">${fmtNum(t.efectivo)}</td>
+                  <td class="num">${fmtNum(t.saldoPendCierre)}</td>
+                  <td class="center">${t.liquidados} liq.</td>
+                </tr>
+              </tfoot>
+            </table>
+          `;
+
+          // Tabla por cargo
+          document.getElementById('payroll-role-container').innerHTML = `
+            <table>
+              <thead>
+                <tr>
+                  <th>Cargo</th>
+                  <th class="center">Empleados</th>
+                  <th class="num">Devengado Mes</th>
+                  <th class="num">Descuentos</th>
+                  <th class="num">Efectivo Pagado</th>
+                  <th class="num">% del Total</th>
+                  <th class="num">Saldo Pendiente</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${payroll.byRole.map(g => `
+                  <tr>
+                    <td><strong>${escHtml(g.role)}</strong></td>
+                    <td class="center">${g.count}</td>
+                    <td class="num">${fmtNum(g.dev)}</td>
+                    <td class="num ${g.desc > 0 ? 'text-red' : 'text-muted'}">${fmtNum(g.desc)}</td>
+                    <td class="num text-mint">${fmtNum(g.efectivo)}</td>
+                    <td class="num">${t.efectivo > 0 ? fmtPct(g.efectivo / t.efectivo) : '0,0%'}</td>
+                    <td class="num ${g.saldoPend > 0 ? 'text-amber' : 'text-muted'}">${fmtNum(g.saldoPend)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        }
+      }
+
+      function buildPayrollFooterHTML(qKey, t) {
+        if (qKey === 'q1') {
+          return `
+            <tr>
+              <td class="sticky-col">TOTALES QUINCENA 1</td>
+              <td class="num">${fmtNum(t.fixed)}</td>
+              <td class="num">${t.days}</td>
+              <td class="num">${t.sundays}</td>
+              <td class="num">${t.snacks}</td>
+              <td class="num">${t.early}</td>
+              <td class="num">${t.rest}</td>
+              <td class="num">${t.extraShift}</td>
+              <td class="num">${t.overtime}</td>
+              <td class="num">${fmtNum(t.dev)}</td>
+              <td class="num">${fmtNum(t.desc)}</td>
+              <td class="num">${fmtNum(t.efectivo)}</td>
+              <td class="num">${fmtNum(t.arrastreQ2)}</td>
+              <td class="center">${t.liquidados} liq.</td>
+            </tr>
+          `;
+        }
+        return `
+          <tr>
+            <td class="sticky-col">TOTALES QUINCENA 2</td>
+            <td class="num">${fmtNum(t.fixed)}</td>
+            <td class="num">${t.days}</td>
+            <td class="num">${t.sundays}</td>
+            <td class="num">${t.snacks}</td>
+            <td class="num">${t.early}</td>
+            <td class="num">${t.rest}</td>
+            <td class="num">${t.extraShift}</td>
+            <td class="num">${t.overtime}</td>
+            <td class="num">${fmtNum(t.dev)}</td>
+            <td class="num">${fmtNum(t.saldoAnt)}</td>
+            <td class="num">${fmtNum(t.desc)}</td>
+            <td class="num">${fmtNum(t.efectivo)}</td>
+            <td class="num">${fmtNum(t.saldoPendCierre)}</td>
+            <td class="center">${t.liquidados} liq.</td>
+          </tr>
+        `;
+      }
+
+      // Actualización dirigida de Nómina para conservar el foco del teclado
+      function updatePayrollCalculatedCells() {
+        const payroll = calcAllPayroll();
+        const qKey = activePayrollSubtab;
+        if (qKey !== 'q1' && qKey !== 'q2') return;
+
+        payroll.rows.forEach(r => {
+          const tr = document.querySelector(`tr[data-pay-emp="${r.emp.id}"][data-pay-q="${qKey}"]`);
+          if (!tr) return;
+          const data = r[qKey];
+          tr.querySelector('.p-dev').textContent = fmtNum(data.dev);
+          const efEl = tr.querySelector('.p-ef');
+          efEl.textContent = fmtNum(data.efectivo);
+          efEl.className = `num p-ef ${data.efectivo > 0 ? 'cell-highlight-mint' : 'text-muted'}`;
+          tr.querySelector('.p-stat').innerHTML = statusBadge(data.status);
+
+          if (qKey === 'q1') {
+            const arrEl = tr.querySelector('.p-arr');
+            arrEl.textContent = fmtNum(data.arrastreQ2);
+            arrEl.className = `num p-arr ${data.arrastreQ2 > 0 ? 'cell-highlight-amber' : 'text-muted'}`;
+          } else {
+            const cEl = tr.querySelector('.p-cierre');
+            cEl.textContent = fmtNum(data.saldoPendCierre);
+            cEl.className = `num p-cierre ${data.saldoPendCierre > 0 ? 'cell-highlight-amber' : 'text-muted'}`;
+          }
+        });
+
+        const tfoot = document.getElementById('payroll-tfoot');
+        if (tfoot) tfoot.innerHTML = buildPayrollFooterHTML(qKey, payroll.totals[qKey]);
+
+        // Actualizar KPIs de la vista
+        const pInfo = getPeriodInfo(state.period.year, state.period.month);
+        const t = payroll.totals[qKey];
+        const kpisEl = document.getElementById('payroll-kpis');
+        if (qKey === 'q1') {
+          kpisEl.innerHTML = `
+            <div class="kpi-card"><div class="kpi-label">Total Devengado Q1</div><div class="kpi-value">${fmtMoney(t.dev)}</div><div class="kpi-meta">${t.liquidados} empleados liquidados</div></div>
+            <div class="kpi-card kpi-red"><div class="kpi-label">Descuentos Q1</div><div class="kpi-value">${fmtMoney(t.desc)}</div><div class="kpi-meta">Traídos de Bitácora Descuentos</div></div>
+            <div class="kpi-card kpi-mint"><div class="kpi-label">Efectivo Real a Pagar Q1</div><div class="kpi-value">${fmtMoney(t.efectivo)}</div><div class="kpi-meta">Desembolso del día 15</div></div>
+            <div class="kpi-card kpi-amber"><div class="kpi-label">Saldos Arrastrados a Q2</div><div class="kpi-value">${fmtMoney(t.arrastreQ2)}</div><div class="kpi-meta">Se descuenta automáticamente en Q2</div></div>
+          `;
+        } else {
+          kpisEl.innerHTML = `
+            <div class="kpi-card"><div class="kpi-label">Total Devengado Q2</div><div class="kpi-value">${fmtMoney(t.dev)}</div><div class="kpi-meta">${t.liquidados} empleados liquidados</div></div>
+            <div class="kpi-card kpi-amber"><div class="kpi-label">Saldo Ant. (Q1) + Desc. Q2</div><div class="kpi-value">${fmtMoney(t.saldoAnt + t.desc)}</div><div class="kpi-meta">Arrastre: ${fmtMoney(t.saldoAnt)} · Desc Q2: ${fmtMoney(t.desc)}</div></div>
+            <div class="kpi-card kpi-mint"><div class="kpi-label">Efectivo Real a Pagar Q2</div><div class="kpi-value">${fmtMoney(t.efectivo)}</div><div class="kpi-meta">Desembolso día ${pInfo.lastDay}</div></div>
+            <div class="kpi-card kpi-red"><div class="kpi-label">Saldo Pendiente Cierre</div><div class="kpi-value">${fmtMoney(t.saldoPendCierre)}</div><div class="kpi-meta">Pendiente para próximo mes</div></div>
+          `;
+        }
+      }
+
+      // ---- MÓDULO 3: DESCUENTOS Y VALES ----
+      function renderDeductions() {
+        const { year, month } = state.period;
+        const pInfo = getPeriodInfo(year, month);
+        const empSel = document.getElementById('ded-emp');
+        const filterEmpSel = document.getElementById('ded-filter-emp');
+        const filterQ = document.getElementById('ded-filter-q').value;
+        const prevFilterEmp = filterEmpSel.value;
+
+        const empOptions = state.employees.map(e => `<option value="${e.id}">${escHtml(e.name)} (${escHtml(e.role)})</option>`).join('');
+        empSel.innerHTML = empOptions;
+        filterEmpSel.innerHTML = '<option value="">Todos los empleados</option>' + empOptions;
+        filterEmpSel.value = prevFilterEmp;
+
+        const dedDate = document.getElementById('ded-date');
+        if (!dedDate.value) dedDate.value = pInfo.defaultDate;
+
+        const empById = {};
+        state.employees.forEach(e => { empById[e.id] = e; });
+
+        const filtered = state.deductions
+          .map(d => ({ ...d, cls: classifyDate(d.date, year, month) }))
+          .filter(d => {
+            if (prevFilterEmp && d.empId !== prevFilterEmp) return false;
+            if (filterQ && d.cls.code !== filterQ) return false;
+            return true;
+          })
+          .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+        let sumFiltered = 0;
+        const tbody = document.getElementById('ded-tbody');
+        if (!filtered.length) {
+          tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No hay descuentos registrados con los filtros seleccionados.</td></tr>';
+        } else {
+          tbody.innerHTML = filtered.map(d => {
+            sumFiltered += Number(d.amount) || 0;
+            const emp = empById[d.empId];
+            const qBadge = d.cls.inPeriod
+              ? `<span class="badge ${d.cls.qCode === 'Q1' ? 'badge-teal' : 'badge-mint'}">${d.cls.label}</span>`
+              : `<span class="badge badge-amber">${d.cls.label}</span>`;
+            return `
+              <tr>
+                <td>${formatYMDtoDMY(d.date)}</td>
+                <td>${qBadge}</td>
+                <td><strong>${escHtml(emp ? emp.name : 'Empleado eliminado')}</strong></td>
+                <td>${escHtml(d.reason)}</td>
+                <td class="num text-red">${fmtMoney(d.amount)}</td>
+                <td style="white-space:normal;max-width:220px;" class="text-muted">${escHtml(d.note || '—')}</td>
+                <td class="center">
+                  <button type="button" class="btn btn-danger btn-sm btn-del-ded" data-id="${d.id}" title="Eliminar descuento">Eliminar</button>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        }
+
+        document.getElementById('ded-tfoot').innerHTML = `
+          <tr>
+            <td colspan="4">TOTAL MOSTRADO (${filtered.length} mov.)</td>
+            <td class="num">${fmtMoney(sumFiltered)}</td>
+            <td colspan="2"></td>
+          </tr>
+        `;
+
+        // Panel resumen por empleado (periodo activo)
+        const payroll = calcAllPayroll();
+        let sumQ1 = 0, sumQ2 = 0, sumMes = 0;
+        const sumRows = payroll.rows.filter(r => r.q1.desc > 0 || r.q2.desc > 0);
+        const sumTbody = document.getElementById('ded-summary-tbody');
+        if (!sumRows.length) {
+          sumTbody.innerHTML = '<tr><td colspan="4" class="empty-state">Sin descuentos en el periodo activo.</td></tr>';
+        } else {
+          sumTbody.innerHTML = sumRows.map(r => {
+            sumQ1 += r.q1.desc;
+            sumQ2 += r.q2.desc;
+            sumMes += r.mes.desc;
+            return `
+              <tr>
+                <td><strong>${escHtml(r.emp.name)}</strong></td>
+                <td class="num">${fmtNum(r.q1.desc)}</td>
+                <td class="num">${fmtNum(r.q2.desc)}</td>
+                <td class="num text-red">${fmtNum(r.mes.desc)}</td>
+              </tr>
+            `;
+          }).join('');
+        }
+        document.getElementById('ded-summary-tfoot').innerHTML = `
+          <tr>
+            <td>TOTAL PERIODO</td>
+            <td class="num">${fmtNum(sumQ1)}</td>
+            <td class="num">${fmtNum(sumQ2)}</td>
+            <td class="num">${fmtNum(sumMes)}</td>
+          </tr>
+        `;
+      }
+
+      // ---- MÓDULO 4: CONTROL DOMICILIOS ----
+      function renderDeliveries() {
+        const { year, month } = state.period;
+        const pInfo = getPeriodInfo(year, month);
+        const deliv = calcDeliveries();
+
+        document.getElementById('del-kpis').innerHTML = `
+          <div class="kpi-card">
+            <div class="kpi-label">Domicilios Quincena 1</div>
+            <div class="kpi-value">${fmtMoney(deliv.totalQ1)}</div>
+            <div class="kpi-meta">${pInfo.q1Start} al ${pInfo.q1End}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Domicilios Quincena 2</div>
+            <div class="kpi-value">${fmtMoney(deliv.totalQ2)}</div>
+            <div class="kpi-meta">${pInfo.q2Start} al ${pInfo.q2End}</div>
+          </div>
+          <div class="kpi-card kpi-dark">
+            <div class="kpi-label">Total Domicilios Mes</div>
+            <div class="kpi-value">${fmtMoney(deliv.totalMes)}</div>
+            <div class="kpi-meta">Acumulado en ${pInfo.label}</div>
+          </div>
+        `;
+
+        const driverSel = document.getElementById('del-driver');
+        const filterDrvSel = document.getElementById('del-filter-driver');
+        const prevFilterDrv = filterDrvSel.value;
+        const filterQ = document.getElementById('del-filter-q').value;
+
+        const drvOptions = state.drivers.map(d => `<option value="${escHtml(d)}">${escHtml(d)}</option>`).join('');
+        driverSel.innerHTML = drvOptions;
+        filterDrvSel.innerHTML = '<option value="">Todos los domiciliarios</option>' + drvOptions;
+        filterDrvSel.value = prevFilterDrv;
+
+        const delDate = document.getElementById('del-date');
+        if (!delDate.value) delDate.value = `${year}-${pad2(month)}-12`;
+
+        const filtered = state.deliveries
+          .map(item => ({ ...item, cls: classifyDate(item.date, year, month) }))
+          .filter(item => {
+            if (prevFilterDrv && item.driver !== prevFilterDrv) return false;
+            if (filterQ && item.cls.code !== filterQ) return false;
+            return true;
+          })
+          .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+        let sumFiltered = 0;
+        const tbody = document.getElementById('del-tbody');
+        if (!filtered.length) {
+          tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No hay pagos registrados con los filtros seleccionados.</td></tr>';
+        } else {
+          tbody.innerHTML = filtered.map(item => {
+            sumFiltered += Number(item.amount) || 0;
+            const qBadge = item.cls.inPeriod
+              ? `<span class="badge ${item.cls.qCode === 'Q1' ? 'badge-teal' : 'badge-mint'}">${item.cls.label}</span>`
+              : `<span class="badge badge-amber">${item.cls.label}</span>`;
+            return `
+              <tr>
+                <td>${formatYMDtoDMY(item.date)}</td>
+                <td>${qBadge}</td>
+                <td><strong>${escHtml(item.driver)}</strong></td>
+                <td class="num ${item.amount > 0 ? '' : 'text-muted'}" style="font-weight:700;">${fmtMoney(item.amount)}</td>
+                <td style="white-space:normal;max-width:200px;" class="text-muted">${escHtml(item.note || '—')}</td>
+                <td class="center">
+                  <button type="button" class="btn btn-danger btn-sm btn-del-deliv" data-id="${item.id}">Eliminar</button>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        }
+
+        document.getElementById('del-tfoot').innerHTML = `
+          <tr>
+            <td colspan="3">TOTAL MOSTRADO (${filtered.length} reg.)</td>
+            <td class="num">${fmtMoney(sumFiltered)}</td>
+            <td colspan="2"></td>
+          </tr>
+        `;
+
+        // Resumen lateral por domiciliario
+        document.getElementById('del-summary-tbody').innerHTML = deliv.byDriver.map(d => `
+          <tr>
+            <td><strong>${escHtml(d.driver)}</strong></td>
+            <td class="center">${d.daysPaid}</td>
+            <td class="num" style="font-weight:700;">${fmtNum(d.total)}</td>
+            <td class="num text-muted">${fmtPct(d.pct)}</td>
+          </tr>
+        `).join('');
+
+        document.getElementById('del-summary-tfoot').innerHTML = `
+          <tr>
+            <td>TOTAL PERIODO</td>
+            <td class="center">—</td>
+            <td class="num">${fmtNum(deliv.totalMes)}</td>
+            <td class="num">100%</td>
+          </tr>
+        `;
+      }
+
+      // ---- MÓDULO 5: COMPROBANTE DE PAGO (IMPRIMIBLE / PDF) ----
+      function renderReceipt() {
+        const empSel = document.getElementById('rec-emp');
+        const perSel = document.getElementById('rec-period');
+        const prevEmp = empSel.value;
+
+        empSel.innerHTML = state.employees.map(e => `<option value="${e.id}">${escHtml(e.name)} — ${escHtml(e.role)}</option>`).join('');
+        if (prevEmp && state.employees.some(e => e.id === prevEmp)) {
+          empSel.value = prevEmp;
+        }
+
+        const empId = empSel.value;
+        const periodKey = perSel.value || 'Q1';
+        const payroll = calcAllPayroll();
+        const row = payroll.rows.find(r => r.emp.id === empId);
+        const sheet = document.getElementById('receipt-sheet');
+
+        if (!row) {
+          sheet.innerHTML = '<div class="empty-state">Selecciona un empleado para generar el comprobante.</div>';
+          return;
+        }
+
+        const emp = row.emp;
+        const rates = state.rates;
+        const sunRate = getSundayRate(emp.role, rates);
+        const pInfo = getPeriodInfo(state.period.year, state.period.month);
+
+        let periodTitle = '';
+        let dateRange = '';
+        let units = null;
+        let fixedQty = 1;
+        let fixedSub = 0;
+        let devTotal = 0;
+        let saldoAnt = 0;
+        let descTotal = 0;
+        let descList = [];
+        let efectivoNeto = 0;
+        let saldoProx = 0;
+
+        if (periodKey === 'Q1') {
+          periodTitle = `Quincena 1 — ${pInfo.label}`;
+          dateRange = `${pInfo.q1Start} al ${pInfo.q1End}`;
+          units = row.q1.units;
+          fixedQty = 1;
+          fixedSub = row.q1.breakdown.fixed;
+          devTotal = row.q1.dev;
+          saldoAnt = 0;
+          descTotal = row.q1.desc;
+          descList = row.q1.descList;
+          efectivoNeto = row.q1.efectivo;
+          saldoProx = row.q1.arrastreQ2;
+        } else if (periodKey === 'Q2') {
+          periodTitle = `Quincena 2 — ${pInfo.label}`;
+          dateRange = `${pInfo.q2Start} al ${pInfo.q2End}`;
+          units = row.q2.units;
+          fixedQty = 1;
+          fixedSub = row.q2.breakdown.fixed;
+          devTotal = row.q2.dev;
+          saldoAnt = row.q2.saldoAnt;
+          descTotal = row.q2.desc;
+          descList = row.q2.descList;
+          efectivoNeto = row.q2.efectivo;
+          saldoProx = row.q2.saldoPendCierre;
+        } else {
+          periodTitle = `Consolidado Mensual — ${pInfo.label}`;
+          dateRange = `${pInfo.monthStart} al ${pInfo.monthEnd}`;
+          units = row.mes.units;
+          fixedQty = 2;
+          fixedSub = row.mes.fixedTotal;
+          devTotal = row.mes.dev;
+          saldoAnt = 0;
+          descTotal = row.mes.desc;
+          descList = row.mes.descList;
+          efectivoNeto = row.mes.efectivo;
+          saldoProx = row.mes.saldoPendCierre;
+        }
+
+        const conceptLines = [
+          { name: 'Sueldo Fijo Quincenal', qty: emp.sueldoFijo > 0 ? fixedQty : 0, rate: emp.sueldoFijo, sub: fixedSub },
+          { name: 'Días Trabajados', qty: units.days, rate: rates.daily, sub: units.days * rates.daily },
+          { name: `Domingos y Festivos (${emp.role === 'Auxiliar' ? 'Tarifa Auxiliar' : 'Tarifa Estándar'})`, qty: units.sundays, rate: sunRate, sub: units.sundays * sunRate },
+          { name: 'Meriendas', qty: units.snacks, rate: rates.snack, sub: units.snacks * rates.snack },
+          { name: 'Madrugadas', qty: units.early, rate: rates.early, sub: units.early * rates.early },
+          { name: 'Descansos', qty: units.rest, rate: rates.rest, sub: units.rest * rates.rest },
+          { name: 'Turnos Adicionales', qty: units.extraShift, rate: rates.extra_shift, sub: units.extraShift * rates.extra_shift },
+          { name: 'Horas Extras', qty: units.overtime, rate: rates.overtime_hr, sub: units.overtime * rates.overtime_hr }
+        ];
+
+        const today = new Date();
+        const emitted = `${pad2(today.getDate())}/${pad2(today.getMonth() + 1)}/${today.getFullYear()}`;
+
+        const dedNoteHTML = descList.length ? `
+          <div class="receipt-deductions-note">
+            <h4>Detalle de Descuentos Aplicados en este Periodo:</h4>
+            <ul>
+              ${descList.map(d => `<li>${formatYMDtoDMY(d.date)} — <strong>${escHtml(d.reason)}</strong>: ${fmtMoney(d.amount)}${d.note ? ' (' + escHtml(d.note) + ')' : ''}</li>`).join('')}
+            </ul>
+          </div>
+        ` : '';
+
+        sheet.innerHTML = `
+          <div class="receipt-header">
+            <div class="receipt-brand">
+              <h2>QUEEN SAZÓN</h2>
+              <p>COMPROBANTE DE PAGO DE NÓMINA</p>
+            </div>
+            <div class="receipt-meta">
+              <strong>${escHtml(periodTitle)}</strong>
+              <div>Rango: ${escHtml(dateRange)}</div>
+              <div>Emisión: ${emitted}</div>
+            </div>
+          </div>
+
+          <div class="receipt-worker-grid">
+            <div><span>Trabajador</span><strong>${escHtml(emp.name)}</strong></div>
+            <div><span>Cargo</span><strong>${escHtml(emp.role)}</strong></div>
+            <div><span>Modalidad de Pago</span><strong>${escHtml(emp.modality)}</strong></div>
+            <div><span>Periodo Liquidado</span><strong>${escHtml(dateRange)}</strong></div>
+          </div>
+
+          <table class="receipt-table">
+            <thead>
+              <tr>
+                <th>Concepto Devengado</th>
+                <th class="num">Cantidad</th>
+                <th class="num">Tarifa Unit.</th>
+                <th class="num">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${conceptLines.map(c => `
+                <tr style="${c.sub === 0 ? 'color:#6B7280;' : ''}">
+                  <td>${escHtml(c.name)}</td>
+                  <td class="num">${c.qty}</td>
+                  <td class="num">${fmtMoney(c.rate)}</td>
+                  <td class="num" style="font-weight:${c.sub > 0 ? '700' : '400'};">${fmtMoney(c.sub)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          <div class="receipt-summary">
+            <div class="receipt-sum-row">
+              <span>Total Devengado</span>
+              <strong>${fmtMoney(devTotal)}</strong>
+            </div>
+            ${periodKey === 'Q2' ? `
+              <div class="receipt-sum-row">
+                <span>Saldo Pendiente Quincena Anterior (Q1)</span>
+                <strong style="color:var(--amber-text);">${saldoAnt > 0 ? '-' : ''}${fmtMoney(saldoAnt)}</strong>
+              </div>
+            ` : ''}
+            <div class="receipt-sum-row">
+              <span>Descuentos del Periodo</span>
+              <strong style="color:var(--red-text);">${descTotal > 0 ? '-' : ''}${fmtMoney(descTotal)}</strong>
+            </div>
+            <div class="receipt-sum-row net-pay">
+              <span>EFECTIVO NETO A PAGAR</span>
+              <span>${fmtMoney(efectivoNeto)}</span>
+            </div>
+            ${saldoProx > 0 ? `
+              <div class="receipt-sum-row carry-row">
+                <span>Saldo Pendiente para Próximo Periodo</span>
+                <span>${fmtMoney(saldoProx)}</span>
+              </div>
+            ` : ''}
+          </div>
+
+          ${dedNoteHTML}
+
+          <div class="receipt-signatures">
+            <div class="sig-box">
+              <div class="sig-line"></div>
+              <strong>Administración — Queen Sazón</strong>
+              <span>Firma autorizada</span>
+            </div>
+            <div class="sig-box">
+              <div class="sig-line"></div>
+              <strong>Recibí Conforme — ${escHtml(emp.name)}</strong>
+              <span>C.C. / Firma del trabajador</span>
+            </div>
+          </div>
+        `;
+      }
+
+      // ---- MÓDULO 6: CONFIGURACIÓN Y RESPALDOS ----
+      function renderConfig() {
+        const { year, month } = state.period;
+        const pInfo = getPeriodInfo(year, month);
+
+        document.getElementById('cfg-year').value = year;
+        document.getElementById('cfg-month').value = String(month);
+        document.getElementById('cfg-dates-preview').innerHTML = `
+          <strong>Fechas generadas para ${pInfo.label}:</strong><br>
+          • <strong>Quincena 1:</strong> ${pInfo.q1Start} al ${pInfo.q1End}<br>
+          • <strong>Quincena 2:</strong> ${pInfo.q2Start} al ${pInfo.q2End} (${pInfo.lastDay} días exactos en este mes)
+        `;
+
+        // Panel de 8 tarifas
+        document.getElementById('cfg-rates-grid').innerHTML = RATE_DEFINITIONS.map(rd => `
+          <div class="field">
+            <label for="rate-${rd.key}">${rd.label} ($)</label>
+            <input type="number" id="rate-${rd.key}" class="editable rate-input" data-rate="${rd.key}" min="0" step="1000" value="${state.rates[rd.key] || 0}">
+          </div>
+        `).join('');
+
+        // Tabla de empleados
+        document.getElementById('cfg-emp-tbody').innerHTML = state.employees.map((e, i) => `
+          <tr>
+            <td>${i + 1}</td>
+            <td><strong>${escHtml(e.name)}</strong></td>
+            <td><span class="badge ${e.role === 'Auxiliar' ? 'badge-amber' : 'badge-teal'}">${escHtml(e.role)}</span></td>
+            <td>${escHtml(e.modality)}</td>
+            <td class="num">${fmtMoney(e.sueldoFijo)}</td>
+            <td class="center" style="display:flex;justify-content:center;gap:6px;">
+              <button type="button" class="btn btn-secondary btn-sm btn-edit-emp" data-id="${e.id}">Editar</button>
+              <button type="button" class="btn btn-danger btn-sm btn-del-emp" data-id="${e.id}">Eliminar</button>
+            </td>
+          </tr>
+        `).join('');
+
+        // Chips de domiciliarios
+        document.getElementById('cfg-drivers-list').innerHTML = state.drivers.map(d => `
+          <span class="driver-chip">
+            <span>${escHtml(d)}</span>
+            <button type="button" class="btn-del-driver" data-driver="${escHtml(d)}" title="Quitar domiciliario">&times;</button>
+          </span>
+        `).join('');
+      }
+
+      function renderActiveView() {
+        renderTopbar();
+        if (activeView === 'dashboard') renderDashboard();
+        else if (activeView === 'nomina') renderPayroll();
+        else if (activeView === 'descuentos') renderDeductions();
+        else if (activeView === 'domicilios') renderDeliveries();
+        else if (activeView === 'comprobante') renderReceipt();
+        else if (activeView === 'config') renderConfig();
+      }
+
+      function switchView(viewName) {
+        if (!VIEW_TITLES[viewName]) return;
+        activeView = viewName;
+        document.querySelectorAll('.view-section').forEach(sec => {
+          sec.classList.toggle('active', sec.id === 'view-' + viewName);
+        });
+        document.querySelectorAll('.nav-btn, .mobile-tab').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.view === viewName);
+        });
+        renderActiveView();
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
+
+      /* =======================================================================
+         7. MODALES Y NOTIFICACIONES TOAST (SIN alert() NI confirm())
+         ======================================================================= */
+      function showToast(message, type = 'success') {
+        const box = document.getElementById('toast-container');
+        const el = document.createElement('div');
+        el.className = 'toast toast-' + type;
+        el.textContent = message;
+        box.appendChild(el);
+        setTimeout(() => {
+          el.style.opacity = '0';
+          el.style.transition = 'opacity 0.25s ease';
+          setTimeout(() => el.remove(), 260);
+        }, 3200);
+      }
+
+      function openConfirmModal(title, message, onConfirm) {
+        document.getElementById('confirm-title').textContent = title;
+        document.getElementById('confirm-message').textContent = message;
+        pendingConfirmCallback = onConfirm;
+        document.getElementById('confirm-modal').classList.add('open');
+      }
+
+      function closeConfirmModal() {
+        document.getElementById('confirm-modal').classList.remove('open');
+        pendingConfirmCallback = null;
+      }
+
+      function openEmployeeModal(empObj) {
+        document.getElementById('emp-modal-title').textContent = empObj ? 'Editar Empleado' : 'Nuevo Empleado';
+        document.getElementById('emp-edit-id').value = empObj ? empObj.id : '';
+        document.getElementById('emp-edit-name').value = empObj ? empObj.name : '';
+        document.getElementById('emp-edit-role').value = empObj ? empObj.role : 'Cocinera';
+        document.getElementById('emp-edit-mod').value = empObj ? empObj.modality : 'Pago Diario';
+        document.getElementById('emp-edit-fixed').value = empObj ? (empObj.sueldoFijo || 0) : 0;
+        document.getElementById('emp-modal').classList.add('open');
+        document.getElementById('emp-edit-name').focus();
+      }
+
+      function closeEmployeeModal() {
+        document.getElementById('emp-modal').classList.remove('open');
+      }
+
+      /* =======================================================================
+         8. EXPORTACIÓN E IMPORTACIÓN (JSON Y EXCEL MULTI-HOJA .XLS OFFLINE)
+         ======================================================================= */
+      function triggerDownload(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 100);
+      }
+
+      function exportJSON() {
+        const pInfo = getPeriodInfo(state.period.year, state.period.month);
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        triggerDownload(blob, `Queen_Sazon_Respaldo_${pInfo.year}-${pad2(pInfo.month)}.json`);
+        showToast('Respaldo JSON descargado correctamente.');
+      }
+
+      function importJSON(file) {
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          try {
+            const parsed = JSON.parse(ev.target.result);
+            if (!parsed || !parsed.period || !parsed.rates || !Array.isArray(parsed.employees)) {
+              throw new Error('Estructura de archivo inválida');
+            }
+            state = parsed;
+            if (!state.cashFlow) state.cashFlow = { saldoInicial: 0, days: {} };
+            if (!state.cashFlow.days) state.cashFlow.days = {};
+            saveState();
+            renderActiveView();
+            showToast('Respaldo JSON restaurado exitosamente.');
+          } catch (err) {
+            showToast('El archivo seleccionado no es un respaldo válido de Queen Sazón.', 'error');
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      function xmlCell(val, type = 'String', styleId = '') {
+        const st = styleId ? ` ss:StyleID="${styleId}"` : '';
+        if (type === 'Number') {
+          return `<Cell${st}><Data ss:Type="Number">${Number(val) || 0}</Data></Cell>`;
+        }
+        return `<Cell${st}><Data ss:Type="String">${escXml(val)}</Data></Cell>`;
+      }
+
+      function xmlRow(cells) {
+        return `<Row>${cells.join('')}</Row>`;
+      }
+
+      function exportExcelSpreadsheetML() {
+        const payroll = calcAllPayroll();
+        const deliv = calcDeliveries();
+        const cf = calcCashFlow(payroll, deliv);
+        const pInfo = getPeriodInfo(state.period.year, state.period.month);
+        const empById = {};
+        state.employees.forEach(e => { empById[e.id] = e; });
+
+        // Hoja 1: Consolidado Mensual
+        const wsMes = [
+          xmlRow([xmlCell(`QUEEN SAZÓN — CONSOLIDADO MENSUAL (${pInfo.label})`, 'String', 'sTitle')]),
+          xmlRow(['Empleado', 'Cargo', 'Días', 'Domingos', 'Meriendas', 'Madrugadas', 'Descansos', 'Turnos Adic.', 'Hrs Extras', 'Devengado Mes', 'Descuentos Mes', 'Efectivo Q1', 'Efectivo Q2', 'Total Pagado Mes', 'Saldo Cierre'].map(h => xmlCell(h, 'String', 'sHead'))),
+          ...payroll.rows.map(r => xmlRow([
+            xmlCell(r.emp.name), xmlCell(r.emp.role),
+            xmlCell(r.mes.units.days, 'Number'), xmlCell(r.mes.units.sundays, 'Number'),
+            xmlCell(r.mes.units.snacks, 'Number'), xmlCell(r.mes.units.early, 'Number'),
+            xmlCell(r.mes.units.rest, 'Number'), xmlCell(r.mes.units.extraShift, 'Number'),
+            xmlCell(r.mes.units.overtime, 'Number'), xmlCell(r.mes.dev, 'Number', 'sNum'),
+            xmlCell(r.mes.desc, 'Number', 'sNum'), xmlCell(r.q1.efectivo, 'Number', 'sNum'),
+            xmlCell(r.q2.efectivo, 'Number', 'sNum'), xmlCell(r.mes.efectivo, 'Number', 'sTotal'),
+            xmlCell(r.mes.saldoPendCierre, 'Number', 'sNum')
+          ])),
+          xmlRow([
+            xmlCell('TOTALES', 'String', 'sTotal'), xmlCell('', 'String', 'sTotal'),
+            xmlCell(payroll.totals.mes.days, 'Number', 'sTotal'), xmlCell(payroll.totals.mes.sundays, 'Number', 'sTotal'),
+            xmlCell(payroll.totals.mes.snacks, 'Number', 'sTotal'), xmlCell(payroll.totals.mes.early, 'Number', 'sTotal'),
+            xmlCell(payroll.totals.mes.rest, 'Number', 'sTotal'), xmlCell(payroll.totals.mes.extraShift, 'Number', 'sTotal'),
+            xmlCell(payroll.totals.mes.overtime, 'Number', 'sTotal'), xmlCell(payroll.totals.mes.dev, 'Number', 'sTotal'),
+            xmlCell(payroll.totals.mes.desc, 'Number', 'sTotal'), xmlCell(payroll.totals.q1.efectivo, 'Number', 'sTotal'),
+            xmlCell(payroll.totals.q2.efectivo, 'Number', 'sTotal'), xmlCell(payroll.totals.mes.efectivo, 'Number', 'sTotal'),
+            xmlCell(payroll.totals.mes.saldoPendCierre, 'Number', 'sTotal')
+          ])
+        ].join('');
+
+        // Hoja 2: Quincena 1
+        const wsQ1 = [
+          xmlRow([xmlCell(`NÓMINA QUINCENA 1 (${pInfo.q1Start} al ${pInfo.q1End})`, 'String', 'sTitle')]),
+          xmlRow(['Empleado', 'Cargo', 'Sueldo Fijo', 'Días', 'Dom.', 'Meriendas', 'Madrug.', 'Descansos', 'T. Adic.', 'H. Ext.', 'Devengado', 'Descuentos Q1', 'Efectivo Q1', 'Arrastra Q2', 'Estado'].map(h => xmlCell(h, 'String', 'sHead'))),
+          ...payroll.rows.map(r => xmlRow([
+            xmlCell(r.emp.name), xmlCell(r.emp.role), xmlCell(r.q1.breakdown.fixed, 'Number', 'sNum'),
+            xmlCell(r.q1.units.days, 'Number'), xmlCell(r.q1.units.sundays, 'Number'),
+            xmlCell(r.q1.units.snacks, 'Number'), xmlCell(r.q1.units.early, 'Number'),
+            xmlCell(r.q1.units.rest, 'Number'), xmlCell(r.q1.units.extraShift, 'Number'),
+            xmlCell(r.q1.units.overtime, 'Number'), xmlCell(r.q1.dev, 'Number', 'sNum'),
+            xmlCell(r.q1.desc, 'Number', 'sNum'), xmlCell(r.q1.efectivo, 'Number', 'sTotal'),
+            xmlCell(r.q1.arrastreQ2, 'Number', 'sNum'), xmlCell(r.q1.status)
+          ]))
+        ].join('');
+
+        // Hoja 3: Quincena 2
+        const wsQ2 = [
+          xmlRow([xmlCell(`NÓMINA QUINCENA 2 (${pInfo.q2Start} al ${pInfo.q2End})`, 'String', 'sTitle')]),
+          xmlRow(['Empleado', 'Cargo', 'Sueldo Fijo', 'Días', 'Dom.', 'Meriendas', 'Madrug.', 'Descansos', 'T. Adic.', 'H. Ext.', 'Devengado', 'Saldo Ant Q1', 'Desc Q2', 'Efectivo Q2', 'Saldo Cierre', 'Estado'].map(h => xmlCell(h, 'String', 'sHead'))),
+          ...payroll.rows.map(r => xmlRow([
+            xmlCell(r.emp.name), xmlCell(r.emp.role), xmlCell(r.q2.breakdown.fixed, 'Number', 'sNum'),
+            xmlCell(r.q2.units.days, 'Number'), xmlCell(r.q2.units.sundays, 'Number'),
+            xmlCell(r.q2.units.snacks, 'Number'), xmlCell(r.q2.units.early, 'Number'),
+            xmlCell(r.q2.units.rest, 'Number'), xmlCell(r.q2.units.extraShift, 'Number'),
+            xmlCell(r.q2.units.overtime, 'Number'), xmlCell(r.q2.dev, 'Number', 'sNum'),
+            xmlCell(r.q2.saldoAnt, 'Number', 'sNum'), xmlCell(r.q2.desc, 'Number', 'sNum'),
+            xmlCell(r.q2.efectivo, 'Number', 'sTotal'), xmlCell(r.q2.saldoPendCierre, 'Number', 'sNum'),
+            xmlCell(r.q2.status)
+          ]))
+        ].join('');
+
+        // Hoja 4: Descuentos
+        const wsDed = [
+          xmlRow([xmlCell(`BITÁCORA DE DESCUENTOS Y VALES (${pInfo.label})`, 'String', 'sTitle')]),
+          xmlRow(['Fecha', 'Quincena', 'Empleado', 'Motivo', 'Monto', 'Observación'].map(h => xmlCell(h, 'String', 'sHead'))),
+          ...state.deductions.map(d => {
+            const cls = classifyDate(d.date, state.period.year, state.period.month);
+            const emp = empById[d.empId];
+            return xmlRow([
+              xmlCell(formatYMDtoDMY(d.date)), xmlCell(cls.label),
+              xmlCell(emp ? emp.name : 'Eliminado'), xmlCell(d.reason),
+              xmlCell(d.amount, 'Number', 'sNum'), xmlCell(d.note || '')
+            ]);
+          })
+        ].join('');
+
+        // Hoja 5: Domicilios
+        const wsDel = [
+          xmlRow([xmlCell(`CONTROL DE DOMICILIOS (${pInfo.label})`, 'String', 'sTitle')]),
+          xmlRow(['Fecha', 'Quincena', 'Domiciliario', 'Monto', 'Observación'].map(h => xmlCell(h, 'String', 'sHead'))),
+          ...state.deliveries.map(item => {
+            const cls = classifyDate(item.date, state.period.year, state.period.month);
+            return xmlRow([
+              xmlCell(formatYMDtoDMY(item.date)), xmlCell(cls.label),
+              xmlCell(item.driver), xmlCell(item.amount, 'Number', 'sNum'),
+              xmlCell(item.note || '')
+            ]);
+          }),
+          xmlRow([xmlCell('TOTAL PERIODO ACTIVO', 'String', 'sTotal'), xmlCell('', 'String', 'sTotal'), xmlCell('', 'String', 'sTotal'), xmlCell(deliv.totalMes, 'Number', 'sTotal'), xmlCell('', 'String', 'sTotal')])
+        ].join('');
+
+        // Hoja 6: Flujo de Caja
+        const wsCF = [
+          xmlRow([xmlCell(`FLUJO DE CAJA DIARIO (${pInfo.label}) — Saldo Inicial: ${fmtMoney(cf.saldoInicial)}`, 'String', 'sTitle')]),
+          xmlRow(['Fecha', 'Ventas Efectivo', 'Ventas Transf/Punto', 'Total Ventas', 'Insumos / Otros', 'Domicilios', 'Pago Nómina', 'Flujo Neto Día', 'Saldo Acumulado'].map(h => xmlCell(h, 'String', 'sHead'))),
+          ...cf.days.map(row => xmlRow([
+            xmlCell(row.dateLabel), xmlCell(row.ventasEfectivo, 'Number', 'sNum'),
+            xmlCell(row.ventasTransf, 'Number', 'sNum'), xmlCell(row.totalVentas, 'Number', 'sNum'),
+            xmlCell(row.insumos, 'Number', 'sNum'), xmlCell(row.domicilios, 'Number', 'sNum'),
+            xmlCell(row.nomina, 'Number', 'sNum'), xmlCell(row.flujoDia, 'Number', 'sNum'),
+            xmlCell(row.saldoAcum, 'Number', 'sNum')
+          ])),
+          xmlRow([
+            xmlCell('TOTALES MES', 'String', 'sTotal'),
+            xmlCell(cf.totals.ventasEfectivo, 'Number', 'sTotal'),
+            xmlCell(cf.totals.ventasTransf, 'Number', 'sTotal'),
+            xmlCell(cf.totals.totalVentas, 'Number', 'sTotal'),
+            xmlCell(cf.totals.insumos, 'Number', 'sTotal'),
+            xmlCell(cf.totals.domicilios, 'Number', 'sTotal'),
+            xmlCell(cf.totals.nomina, 'Number', 'sTotal'),
+            xmlCell(cf.totals.flujoNetoOp, 'Number', 'sTotal'),
+            xmlCell(cf.totals.saldoFinal, 'Number', 'sTotal')
+          ])
+        ].join('');
+
+        const workbookXml = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+  <Styles>
+    <Style ss:ID="Default" ss:Name="Normal"><Font ss:FontName="Calibri" ss:Size="10"/></Style>
+    <Style ss:ID="sTitle"><Font ss:FontName="Calibri" ss:Size="13" ss:Bold="1" ss:Color="#1F3A3D"/></Style>
+    <Style ss:ID="sHead"><Font ss:FontName="Calibri" ss:Size="10" ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#1F3A3D" ss:Pattern="Solid"/></Style>
+    <Style ss:ID="sNum"><NumberFormat ss:Format="#,##0"/></Style>
+    <Style ss:ID="sTotal"><Font ss:FontName="Calibri" ss:Size="10" ss:Bold="1" ss:Color="#14532D"/><Interior ss:Color="#E0EFE8" ss:Pattern="Solid"/><NumberFormat ss:Format="#,##0"/></Style>
+  </Styles>
+  <Worksheet ss:Name="Consolidado Mensual"><Table>${wsMes}</Table></Worksheet>
+  <Worksheet ss:Name="Quincena 1"><Table>${wsQ1}</Table></Worksheet>
+  <Worksheet ss:Name="Quincena 2"><Table>${wsQ2}</Table></Worksheet>
+  <Worksheet ss:Name="Descuentos"><Table>${wsDed}</Table></Worksheet>
+  <Worksheet ss:Name="Domicilios"><Table>${wsDel}</Table></Worksheet>
+  <Worksheet ss:Name="Flujo de Caja"><Table>${wsCF}</Table></Worksheet>
+</Workbook>`;
+
+        const blob = new Blob([workbookXml], { type: 'application/vnd.ms-excel;charset=utf-8' });
+        triggerDownload(blob, `Queen_Sazon_Reporte_${pInfo.year}-${pad2(pInfo.month)}.xls`);
+        showToast('Reporte Excel multi-hoja (.xls) descargado.');
+      }
+
+      /* =======================================================================
+         9. EVENT LISTENERS GLOBALES (DELEGACIÓN LIMPIA)
+         ======================================================================= */
+      function bindEvents() {
+        // Navegación escritorio y móvil
+        document.getElementById('desktop-nav').addEventListener('click', e => {
+          const btn = e.target.closest('.nav-btn');
+          if (btn) switchView(btn.dataset.view);
+        });
+        document.getElementById('mobile-nav').addEventListener('click', e => {
+          const btn = e.target.closest('.mobile-tab');
+          if (btn) switchView(btn.dataset.view);
+        });
+
+        // Sub-pestañas de Nómina
+        document.getElementById('payroll-subtabs').addEventListener('click', e => {
+          const btn = e.target.closest('.subtab-btn');
+          if (!btn) return;
+          activePayrollSubtab = btn.dataset.subtab;
+          renderPayroll();
+        });
+
+        // Inputs de Nómina (actualización en vivo sin perder foco)
+        document.getElementById('payroll-table-container').addEventListener('input', e => {
+          const inp = e.target.closest('.pay-input');
+          if (!inp) return;
+          const emp = state.employees.find(x => x.id === inp.dataset.emp);
+          if (!emp) return;
+          const qKey = inp.dataset.q;
+          const field = inp.dataset.field;
+          const val = Math.max(0, parseFloat(inp.value) || 0);
+          emp[qKey][field] = val;
+          saveState();
+          updatePayrollCalculatedCells();
+        });
+
+        // Inputs de Flujo de Caja (Saldo Inicial y Celdas Diarias)
+        document.getElementById('cf-saldo-inicial').addEventListener('input', e => {
+          state.cashFlow.saldoInicial = parseFloat(e.target.value) || 0;
+          saveState();
+          updateCashFlowCalculatedCells();
+        });
+
+        document.getElementById('cf-tbody').addEventListener('input', e => {
+          const inp = e.target.closest('.cf-input');
+          if (!inp) return;
+          const dKey = inp.dataset.date;
+          const field = inp.dataset.field;
+          if (!state.cashFlow.days[dKey]) {
+            state.cashFlow.days[dKey] = { ventasEfectivo: 0, ventasTransf: 0, insumos: 0 };
+          }
+          state.cashFlow.days[dKey][field] = Math.max(0, parseFloat(inp.value) || 0);
+          saveState();
+          updateCashFlowCalculatedCells();
+        });
+
+        // Formulario Descuentos
+        document.getElementById('form-deduction').addEventListener('submit', e => {
+          e.preventDefault();
+          const date = document.getElementById('ded-date').value;
+          const empId = document.getElementById('ded-emp').value;
+          const reason = document.getElementById('ded-reason').value;
+          const amount = Math.max(0, parseFloat(document.getElementById('ded-amount').value) || 0);
+          const note = document.getElementById('ded-note').value.trim();
+          if (!date || !empId || amount <= 0) {
+            showToast('Ingresa fecha, empleado y un monto mayor a cero.', 'amber');
+            return;
+          }
+          state.deductions.push({ id: uid('ded'), date, empId, reason, amount, note });
+          saveState();
+          document.getElementById('ded-amount').value = '';
+          document.getElementById('ded-note').value = '';
+          renderDeductions();
+          showToast('Descuento registrado y aplicado a nómina.');
+        });
+
+        document.getElementById('ded-filter-emp').addEventListener('change', renderDeductions);
+        document.getElementById('ded-filter-q').addEventListener('change', renderDeductions);
+
+        document.getElementById('ded-tbody').addEventListener('click', e => {
+          const btn = e.target.closest('.btn-del-ded');
+          if (!btn) return;
+          openConfirmModal('Eliminar Descuento', '¿Deseas eliminar este movimiento de descuento? La nómina se recalculará al instante.', () => {
+            state.deductions = state.deductions.filter(d => d.id !== btn.dataset.id);
+            saveState();
+            renderDeductions();
+            showToast('Descuento eliminado.', 'amber');
+          });
+        });
+
+        // Formulario Domicilios
+        document.getElementById('form-delivery').addEventListener('submit', e => {
+          e.preventDefault();
+          const date = document.getElementById('del-date').value;
+          const driver = document.getElementById('del-driver').value;
+          const amount = Math.max(0, parseFloat(document.getElementById('del-amount').value) || 0);
+          const note = document.getElementById('del-note').value.trim();
+          if (!date || !driver) {
+            showToast('Selecciona fecha y domiciliario.', 'amber');
+            return;
+          }
+          state.deliveries.push({ id: uid('del'), date, driver, amount, note });
+          saveState();
+          document.getElementById('del-amount').value = '';
+          document.getElementById('del-note').value = '';
+          renderDeliveries();
+          showToast('Pago de domicilio registrado.');
+        });
+
+        document.getElementById('del-filter-driver').addEventListener('change', renderDeliveries);
+        document.getElementById('del-filter-q').addEventListener('change', renderDeliveries);
+
+        document.getElementById('del-tbody').addEventListener('click', e => {
+          const btn = e.target.closest('.btn-del-deliv');
+          if (!btn) return;
+          openConfirmModal('Eliminar Registro de Domicilio', '¿Deseas eliminar este pago de domicilio?', () => {
+            state.deliveries = state.deliveries.filter(d => d.id !== btn.dataset.id);
+            saveState();
+            renderDeliveries();
+            showToast('Registro eliminado.', 'amber');
+          });
+        });
+
+        // Comprobante de Pago
+        document.getElementById('rec-emp').addEventListener('change', renderReceipt);
+        document.getElementById('rec-period').addEventListener('change', renderReceipt);
+        document.getElementById('btn-print-receipt').addEventListener('click', () => {
+          window.print();
+        });
+
+        // Configuración: Año y Mes
+        document.getElementById('cfg-year').addEventListener('change', e => {
+          const y = parseInt(e.target.value, 10);
+          if (y >= 2020 && y <= 2040) {
+            state.period.year = y;
+            saveState();
+            renderTopbar();
+            renderConfig();
+            showToast('Año actualizado. Fechas recalculadas automáticamente.');
+          }
+        });
+        document.getElementById('cfg-month').addEventListener('change', e => {
+          const m = parseInt(e.target.value, 10);
+          if (m >= 1 && m <= 12) {
+            state.period.month = m;
+            saveState();
+            renderTopbar();
+            renderConfig();
+            showToast('Mes actualizado. Fechas recalculadas automáticamente.');
+          }
+        });
+
+        // Configuración: Tarifas
+        document.getElementById('cfg-rates-grid').addEventListener('input', e => {
+          const inp = e.target.closest('.rate-input');
+          if (!inp) return;
+          state.rates[inp.dataset.rate] = Math.max(0, parseFloat(inp.value) || 0);
+          saveState();
+        });
+
+        // Configuración: Empleados (Agregar / Editar / Eliminar)
+        document.getElementById('btn-add-emp').addEventListener('click', () => openEmployeeModal(null));
+        document.getElementById('cfg-emp-tbody').addEventListener('click', e => {
+          const editBtn = e.target.closest('.btn-edit-emp');
+          if (editBtn) {
+            const emp = state.employees.find(x => x.id === editBtn.dataset.id);
+            if (emp) openEmployeeModal(emp);
+            return;
+          }
+          const delBtn = e.target.closest('.btn-del-emp');
+          if (delBtn) {
+            const emp = state.employees.find(x => x.id === delBtn.dataset.id);
+            if (!emp) return;
+            openConfirmModal('Eliminar Empleado', `¿Seguro que deseas eliminar a "${emp.name}" del directorio? También se desvinculará de las tablas de nómina.`, () => {
+              state.employees = state.employees.filter(x => x.id !== emp.id);
+              saveState();
+              renderConfig();
+              showToast(`Empleado ${emp.name} eliminado.`, 'amber');
+            });
+          }
+        });
+
+        document.getElementById('form-emp-modal').addEventListener('submit', e => {
+          e.preventDefault();
+          const id = document.getElementById('emp-edit-id').value;
+          const name = document.getElementById('emp-edit-name').value.trim();
+          const role = document.getElementById('emp-edit-role').value;
+          const modality = document.getElementById('emp-edit-mod').value;
+          const sueldoFijo = Math.max(0, parseFloat(document.getElementById('emp-edit-fixed').value) || 0);
+          if (!name) return;
+
+          if (id) {
+            const emp = state.employees.find(x => x.id === id);
+            if (emp) {
+              emp.name = name;
+              emp.role = role;
+              emp.modality = modality;
+              emp.sueldoFijo = sueldoFijo;
+            }
+            showToast(`Datos de ${name} actualizados.`);
+          } else {
+            state.employees.push({
+              id: uid('emp'),
+              name,
+              role,
+              modality,
+              sueldoFijo,
+              q1: emptyQuincena(),
+              q2: emptyQuincena()
+            });
+            showToast(`Empleado ${name} agregado al sistema.`);
+          }
+          saveState();
+          closeEmployeeModal();
+          renderConfig();
+        });
+
+        document.getElementById('emp-modal-close').addEventListener('click', closeEmployeeModal);
+        document.getElementById('emp-modal-cancel').addEventListener('click', closeEmployeeModal);
+
+        // Configuración: Domiciliarios
+        document.getElementById('form-add-driver').addEventListener('submit', e => {
+          e.preventDefault();
+          const inp = document.getElementById('cfg-new-driver');
+          const name = inp.value.trim().toUpperCase();
+          if (!name) return;
+          if (state.drivers.includes(name)) {
+            showToast('Ese domiciliario ya existe en la lista.', 'amber');
+            return;
+          }
+          state.drivers.push(name);
+          saveState();
+          inp.value = '';
+          renderConfig();
+          showToast(`Domiciliario ${name} agregado.`);
+        });
+
+        document.getElementById('cfg-drivers-list').addEventListener('click', e => {
+          const btn = e.target.closest('.btn-del-driver');
+          if (!btn) return;
+          const drv = btn.dataset.driver;
+          openConfirmModal('Quitar Domiciliario', `¿Deseas quitar a "${drv}" de la lista de selección? Los registros históricos existentes se mantendrán intactos.`, () => {
+            state.drivers = state.drivers.filter(x => x !== drv);
+            saveState();
+            renderConfig();
+            showToast(`Domiciliario ${drv} retirado de la lista.`, 'amber');
+          });
+        });
+
+        // Respaldos y Restauración
+        document.getElementById('btn-export-json').addEventListener('click', exportJSON);
+        document.getElementById('input-import-json').addEventListener('change', e => {
+          if (e.target.files && e.target.files[0]) {
+            importJSON(e.target.files[0]);
+            e.target.value = '';
+          }
+        });
+        document.getElementById('btn-export-xls').addEventListener('click', exportExcelSpreadsheetML);
+        document.getElementById('btn-reset-demo').addEventListener('click', () => {
+          openConfirmModal(
+            'Restaurar Datos de Noviembre 2026',
+            'Esta acción reemplazará todos los datos actuales en este navegador por los datos conciliados originales de Noviembre 2026 (v3). ¿Deseas continuar?',
+            () => {
+              state = getInitialState();
+              saveState();
+              renderActiveView();
+              showToast('Datos iniciales de Noviembre 2026 restaurados.');
+            }
+          );
+        });
+
+        // Controles del modal de confirmación
+        document.getElementById('confirm-close').addEventListener('click', closeConfirmModal);
+        document.getElementById('confirm-cancel').addEventListener('click', closeConfirmModal);
+        document.getElementById('confirm-ok').addEventListener('click', () => {
+          const cb = pendingConfirmCallback;
+          closeConfirmModal();
+          if (typeof cb === 'function') cb();
+        });
+
+        // Cerrar modales al hacer clic fuera
+        document.getElementById('confirm-modal').addEventListener('click', e => {
+          if (e.target.id === 'confirm-modal') closeConfirmModal();
+        });
+        document.getElementById('emp-modal').addEventListener('click', e => {
+          if (e.target.id === 'emp-modal') closeEmployeeModal();
+        });
+      }
+
+      /* =======================================================================
+         10. INICIALIZACIÓN
+         ======================================================================= */
+      function init() {
+        bindEvents();
+        saveState();
+        renderActiveView();
+      }
+
+      document.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
+</body>
+</html>
